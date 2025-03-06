@@ -246,22 +246,23 @@ def show_login_page():
         
         # Title
         st.markdown('<h1 class="login-title">Tasty Voice Generator</h1>', unsafe_allow_html=True)
-        
-        # HTML-based Login form for consistent styling
-        username = st.text_input("Username")
-        password = st.text_input("Password", type="password")
-        
-        # Check if the button was clicked
-        if st.button("Sign In", key="login_button", use_container_width=True):
-            if login_user(username, password, st.session_state.users):
-                st.session_state.logged_in = True
-                st.session_state.username = username
-                st.session_state.is_admin = st.session_state.users[username]["is_admin"]
-                st.success("Login successful! Redirecting...")
-                time.sleep(1)  # Short delay for better UX
-                st.rerun()
-            else:
-                st.error("Invalid username or password")
+
+        # Use a form for Enter key functionality
+        with st.form("login_form", clear_on_submit=False):
+            username = st.text_input("Username")
+            password = st.text_input("Password", type="password")
+            submit_button = st.form_submit_button("Sign In", use_container_width=True)
+            
+            if submit_button:
+                if login_user(username, password, st.session_state.users):
+                    st.session_state.logged_in = True
+                    st.session_state.username = username
+                    st.session_state.is_admin = st.session_state.users[username]["is_admin"]
+                    st.success("Login successful! Redirecting...")
+                    time.sleep(1)  # Short delay for better UX
+                    st.rerun()
+                else:
+                    st.error("Invalid username or password")
         
         # Footer
         st.markdown('<div class="footer">© 2025 Tasty Voice Generator</div>', unsafe_allow_html=True)
