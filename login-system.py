@@ -251,25 +251,6 @@ def show_login_page():
         username = st.text_input("Username")
         password = st.text_input("Password", type="password")
         
-        # Custom submit button with inline HTML for more reliable styling
-        submitted = st.markdown("""
-        <form>
-            <button type="submit" 
-                style="
-                    width: 100%; 
-                    background-color: #1E88E5; 
-                    color: white; 
-                    border: none; 
-                    border-radius: 5px; 
-                    padding: 10px 0; 
-                    font-weight: 500; 
-                    cursor: pointer;
-                    margin-top: 10px;">
-                Sign In
-            </button>
-        </form>
-        """, unsafe_allow_html=True)
-        
         # Check if the button was clicked
         if st.button("Sign In", key="login_button", use_container_width=True):
             if login_user(username, password, st.session_state.users):
