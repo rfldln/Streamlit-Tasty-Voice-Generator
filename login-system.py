@@ -1003,7 +1003,6 @@ def main():
         }
         
         try:
-            st.info(f"Sending request to ElevenLabs with model: {model_id}")
             response = requests.post(url, headers=headers, files=files, data=data)
             response.raise_for_status()
             return response.content
