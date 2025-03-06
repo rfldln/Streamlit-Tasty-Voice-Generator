@@ -8,6 +8,9 @@ import pickle
 from io import BytesIO
 from pathlib import Path
 import time
+import numpy as np
+import librosa
+import soundfile as sf
 
 # API key handling for both local and cloud
 api_key = os.environ.get("ELEVENLABS_API_KEY")
@@ -474,139 +477,286 @@ def generate_voice(api_key, voice_id, text, model_id, voice_settings):
             st.error(f"API response: {e.response.text}")
         return None
 
-# Function to clone a voice
-def clone_voice(api_key, name, description, audio_files):
-    """
-    Clone a voice using the ElevenLabs Voice Cloning API
-    
-    Parameters:
-    api_key (str): ElevenLabs API key
-    name (str): Name for the cloned voice
-    description (str): Description of the cloned voice
-    audio_files (list): List of audio file bytes data
-    
-    Returns:
-    str or None: voice_id if successful, None if failed
-    """
-    url = "https://api.elevenlabs.io/v1/voices/add"
-    
-    headers = {
-        "Accept": "application/json",
-        "xi-api-key": api_key
-    }
-    
-    # Create a multipart form with all required fields
-    files = []
-    
-    # Add audio files to the request
-    for i, audio_data in enumerate(audio_files):
-        files.append(
-            ('files', (f'sample_{i}.mp3', audio_data, 'audio/mpeg'))
-        )
-    
-    # Add name and description
-    data = {
-        'name': name,
-        'description': description,
-    }
-    
-    try:
-        response = requests.post(url, headers=headers, data=data, files=files)
-        response.raise_for_status()
-        return response.json().get('voice_id')
-    except requests.exceptions.RequestException as e:
-        st.error(f"Error cloning voice: {str(e)}")
-        if hasattr(e, 'response') and e.response is not None:
-            st.error(f"API response: {e.response.text}")
-        return None
-
 # Function to create download link with enhanced styling
 def get_audio_download_link(audio_data, filename="generated_voice.mp3"):
     b64 = base64.b64encode(audio_data).decode()
     href = f'<a href="data:audio/mpeg;base64,{b64}" download="{filename}">Download MP3</a>'
     return href
 
-# Function to add voice cloning section to the app
-def add_voice_cloning_section():
-    """Add a section for voice cloning functionality"""
+# New function for voice changer
+def speech_to_speech(api_key, audio_data, voice_id, model_id):
+    """
+    Convert speech from uploaded audio to a different voice using ElevenLabs Speech-to-Speech API.
     
-    st.header("Voice Cloning")
-    st.markdown("Upload audio samples to clone a voice")
+    Parameters:
+    api_key (str): ElevenLabs API key
+    audio_data (bytes): Audio file bytes
+    voice_id (str): Target voice ID
+    model_id (str): Model ID to use
     
-    with st.form("voice_cloning_form"):
-        # Voice name and description
-        voice_name = st.text_input("Voice Name", placeholder="My Cloned Voice")
-        voice_description = st.text_area("Voice Description", placeholder="Description of the cloned voice", height=100)
+    Returns:
+    bytes or None: Converted audio bytes if successful, None if failed
+    """
+    url = f"https://api.elevenlabs.io/v1/speech-to-speech/{voice_id}"
+    
+    headers = {
+        "Accept": "audio/mpeg",
+        "xi-api-key": api_key
+    }
+    
+    files = {
+        'audio': ('input.mp3', audio_data, 'audio/mpeg')
+    }
+    
+    data = {
+        'model_id': model_id,
+        'voice_settings': json.dumps({
+            'stability': 0.5,
+            'similarity_boost': 0.75,
+            'style': 0.0,
+            'speaker_boost': True,
+            'speed': 1.0
+        })
+    }
+    
+    try:
+        response = requests.post(url, headers=headers, files=files, data=data)
+        response.raise_for_status()
+        return response.content
+    except requests.exceptions.RequestException as e:
+        st.error(f"Error converting voice: {str(e)}")
+        if hasattr(e, 'response') and e.response is not None:
+            st.error(f"API response: {e.response.text}")
+        return None
+
+# Alternative voice changer without ElevenLabs Speech-to-Speech API
+def basic_voice_changer(audio_data, pitch_shift=0, speed_factor=1.0):
+    """
+    Apply basic voice changing effects using librosa.
+    
+    Parameters:
+    audio_data (bytes): Audio file bytes
+    pitch_shift (float): Pitch shift in semitones
+    speed_factor (float): Speed factor (1.0 is original speed)
+    
+    Returns:
+    bytes: Modified audio bytes
+    """
+    try:
+        # Load audio from bytes
+        audio_bytes = BytesIO(audio_data)
+        y, sr = librosa.load(audio_bytes, sr=None)
         
-        # Audio file upload - multiple files allowed
-        uploaded_files = st.file_uploader(
-            "Upload Audio Samples (MP3, WAV, FLAC, M4A)", 
-            type=["mp3", "wav", "flac", "m4a"], 
-            accept_multiple_files=True
+        # Apply pitch shifting
+        if pitch_shift != 0:
+            y = librosa.effects.pitch_shift(y, sr=sr, n_steps=pitch_shift)
+        
+        # Apply time stretching
+        if speed_factor != 1.0:
+            y = librosa.effects.time_stretch(y, rate=speed_factor)
+        
+        # Convert back to bytes
+        output_bytes = BytesIO()
+        sf.write(output_bytes, y, sr, format='mp3')
+        output_bytes.seek(0)
+        return output_bytes.read()
+    
+    except Exception as e:
+        st.error(f"Error processing audio: {str(e)}")
+        return None
+
+# Add voice changer section to the app
+def add_voice_changer_section():
+    """Add a section for voice changer functionality"""
+    
+    st.header("Voice Changer")
+    st.markdown("Upload your voice recording and transform it into another voice")
+    
+    # Create tabs for different voice changer methods
+    tab1, tab2 = st.tabs(["ElevenLabs Speech-to-Speech", "Basic Voice Effects"])
+    
+    with tab1:
+        st.markdown("Transform your voice using ElevenLabs Speech-to-Speech technology")
+        
+        # Get available voices
+        if "voices_data" in st.session_state:
+            voices_data = st.session_state.voices_data
+            voice_options = {voice["name"]: voice["voice_id"] for voice in voices_data["voices"]}
+            
+            # Select target voice
+            selected_target_voice = st.selectbox(
+                "Select Target Voice", 
+                options=list(voice_options.keys()),
+                key="target_voice_s2s"
+            )
+            selected_target_voice_id = voice_options[selected_target_voice]
+            
+            # Select model
+            model_options = {
+                "Multilingual v2 (Enhanced)": "eleven_multilingual_v2",
+                "Monolingual v1 (English only)": "eleven_monolingual_v1",
+                "Multilingual v1 (Multiple languages)": "eleven_multilingual_v1"
+            }
+            selected_model = st.selectbox(
+                "Select Model", 
+                options=list(model_options.keys()),
+                key="model_s2s"
+            )
+            selected_model_id = model_options[selected_model]
+            
+            # Upload audio file
+            uploaded_file = st.file_uploader(
+                "Upload your voice recording (MP3, WAV, M4A)", 
+                type=["mp3", "wav", "m4a"],
+                key="uploaded_file_s2s"
+            )
+            
+            # Process button
+            if st.button("Transform Voice", key="transform_s2s"):
+                if not uploaded_file:
+                    st.warning("Please upload an audio file of your voice.")
+                else:
+                    with st.spinner("Transforming voice... This may take a moment."):
+                        # Read uploaded file
+                        audio_data = uploaded_file.read()
+                        
+                        # Convert speech to target voice
+                        transformed_audio = speech_to_speech(
+                            api_key, 
+                            audio_data, 
+                            selected_target_voice_id, 
+                            selected_model_id
+                        )
+                        
+                        if transformed_audio:
+                            # Display original audio
+                            st.subheader("Original Voice")
+                            st.audio(audio_data, format="audio/mp3")
+                            
+                            # Display transformed audio
+                            st.subheader(f"Transformed Voice ({selected_target_voice})")
+                            st.audio(transformed_audio, format="audio/mp3")
+                            
+                            # Display download link
+                            st.markdown(get_audio_download_link(
+                                transformed_audio, 
+                                f"transformed_voice_{selected_target_voice}.mp3"
+                            ), unsafe_allow_html=True)
+                            
+                            # Save to recent generations
+                            user_gen_key = f"voice_transformations_{st.session_state.username}"
+                            if user_gen_key not in st.session_state:
+                                st.session_state[user_gen_key] = []
+                            
+                            st.session_state[user_gen_key].append({
+                                "original_audio": audio_data,
+                                "transformed_audio": transformed_audio,
+                                "target_voice": selected_target_voice,
+                                "model": selected_model,
+                                "type": "speech_to_speech"
+                            })
+                        else:
+                            st.error("Failed to transform voice. Please try again with a different audio file or voice model.")
+    
+    with tab2:
+        st.markdown("Apply basic voice effects to your recording")
+        
+        # Basic voice effect controls
+        pitch_shift = st.slider(
+            "Pitch Shift (semitones)", 
+            min_value=-12.0, 
+            max_value=12.0, 
+            value=0.0, 
+            step=0.5,
+            help="Shift the pitch up (positive values) or down (negative values)"
         )
         
-        # Form submission button
-        clone_submitted = st.form_submit_button("Clone Voice")
+        speed_factor = st.slider(
+            "Speed", 
+            min_value=0.5, 
+            max_value=2.0, 
+            value=1.0, 
+            step=0.1,
+            help="Change the speed of the voice (1.0 is original speed)"
+        )
         
-        if clone_submitted:
-            if not voice_name:
-                st.error("Please provide a name for the cloned voice.")
-            elif not uploaded_files or len(uploaded_files) < 1:
-                st.error("Please upload at least 1 audio sample. For better results, upload 3 or more samples.")
+        # Upload audio file
+        uploaded_file = st.file_uploader(
+            "Upload your voice recording (MP3, WAV, M4A)", 
+            type=["mp3", "wav", "m4a"],
+            key="uploaded_file_basic"
+        )
+        
+        # Process button
+        if st.button("Apply Effects", key="transform_basic"):
+            if not uploaded_file:
+                st.warning("Please upload an audio file of your voice.")
             else:
-                with st.spinner("Cloning voice... This may take a minute or two."):
-                    # Read audio file bytes
-                    audio_files = [file.read() for file in uploaded_files]
+                with st.spinner("Applying voice effects..."):
+                    # Read uploaded file
+                    audio_data = uploaded_file.read()
                     
-                    # Clone the voice
-                    new_voice_id = clone_voice(api_key, voice_name, voice_description, audio_files)
+                    # Apply basic voice changes
+                    transformed_audio = basic_voice_changer(
+                        audio_data,
+                        pitch_shift=pitch_shift,
+                        speed_factor=speed_factor
+                    )
                     
-                    if new_voice_id:
-                        st.success(f"Voice cloned successfully! Voice ID: {new_voice_id}")
-                        st.info("Refresh the page to see your new voice in the Voice selection dropdown.")
+                    if transformed_audio:
+                        # Display original audio
+                        st.subheader("Original Voice")
+                        st.audio(audio_data, format="audio/mp3")
                         
-                        # Force refresh voice list in cache
-                        get_voices.clear()
+                        # Display transformed audio
+                        st.subheader("Transformed Voice")
+                        st.audio(transformed_audio, format="audio/mp3")
                         
-                        # Add cloned voice to the list of voices
-                        if "voices_data" in st.session_state:
-                            # Create a new voice entry
-                            new_voice = {
-                                "voice_id": new_voice_id,
-                                "name": voice_name,
-                                "description": voice_description,
-                                "preview_url": None  # No preview available for newly cloned voices
-                            }
-                            
-                            # Add to voices data
-                            st.session_state.voices_data["voices"].append(new_voice)
+                        # Display download link
+                        st.markdown(get_audio_download_link(
+                            transformed_audio, 
+                            f"voice_effect_pitch{pitch_shift}_speed{speed_factor}.mp3"
+                        ), unsafe_allow_html=True)
+                        
+                        # Save to recent generations
+                        user_gen_key = f"voice_transformations_{st.session_state.username}"
+                        if user_gen_key not in st.session_state:
+                            st.session_state[user_gen_key] = []
+                        
+                        st.session_state[user_gen_key].append({
+                            "original_audio": audio_data,
+                            "transformed_audio": transformed_audio,
+                            "pitch_shift": pitch_shift,
+                            "speed_factor": speed_factor,
+                            "type": "basic_effects"
+                        })
                     else:
-                        st.error("Failed to clone voice. Please try again.")
+                        st.error("Failed to apply voice effects. Please try again with a different audio file.")
     
-    # Add information about voice cloning best practices
-    with st.expander("Voice Cloning Best Practices"):
+    # Add information about voice changing
+    with st.expander("Voice Changing Tips"):
         st.markdown("""
-        ### Tips for Better Voice Cloning Results
+        ### Tips for Better Voice Transformation Results
         
         1. **Audio Quality**:
            - Use high-quality recordings with minimal background noise
-           - Record in a quiet environment
-           - Use a good microphone if possible
+           - Record in a quiet environment with a good microphone
+           - Speak clearly and at a consistent volume
         
-        2. **Sample Content**:
-           - Provide diverse speech samples (different emotions, pacing, etc.)
-           - Samples should be clear speech without music or other voices
-           - Total duration of 1-3 minutes across all samples is ideal
+        2. **File Types**:
+           - MP3, WAV, or M4A files work best
+           - Higher quality audio files produce better results
         
-        3. **File Format**:
-           - MP3, WAV, FLAC, or M4A files
-           - 16-bit PCM or higher
-           - 44.1kHz sample rate or higher
+        3. **Content Guidelines**:
+           - For Speech-to-Speech transformations, speak naturally and clearly
+           - Short to medium-length samples (30 seconds to 2 minutes) work best
+           - Avoid music or other voices in your recording
         
-        4. **Content Guidelines**:
-           - Ensure you have the right to use the voice samples
-           - Don't use copyrighted content without permission
-           - Respect privacy and get consent when cloning someone's voice
+        4. **Effect Tips**:
+           - For female to male voice: Try pitch shift of -3 to -6
+           - For male to female voice: Try pitch shift of +3 to +6
+           - For child voice: Try pitch shift of +4 to +8 with increased speed
+           - For older/deeper voice: Try pitch shift of -4 to -8 with decreased speed
         """)
 
 # Main function to run the Streamlit app
@@ -676,6 +826,19 @@ def main():
         /* Sidebar styling */
         .css-1d391kg, .css-1lcbmhc {
             background-color: #f5f5f5 !important;
+        }
+        
+        /* Tab styling */
+        button[role="tab"] {
+            background-color: transparent !important;
+            color: #1E88E5 !important;
+            border: none !important;
+            font-weight: 500 !important;
+        }
+        
+        button[role="tab"][aria-selected="true"] {
+            border-bottom: 2px solid #1E88E5 !important;
+            font-weight: 600 !important;
         }
     </style>
     """, unsafe_allow_html=True)
@@ -758,80 +921,116 @@ def main():
 
     # App title and description
     st.title("Tasty Voice Generator")
-    st.markdown("Generate realistic AI voices of our models")
+    st.markdown("Generate realistic AI voices and transform your own voice")
 
-    # Add the voice cloning section
-    add_voice_cloning_section()
+    # Create tabs for text-to-speech and voice changer
+    tts_tab, vc_tab = st.tabs(["Text to Speech", "Voice Changer"])
     
-    # Add separator
-    st.markdown("---")
+    with tts_tab:
+        # Text input area
+        st.header("Enter Text to Convert")
+        text_input = st.text_area("Type or paste text here", height=150)
 
-    # Text input area
-    st.header("Enter Text to Convert")
-    text_input = st.text_area("Type or paste text here", height=150)
+        # Voice selection
+        selected_voice_name = st.selectbox("Select Voice", options=list(voice_options.keys()))
+        selected_voice_id = voice_options[selected_voice_name]
 
-    # Voice selection
-    selected_voice_name = st.selectbox("Select Voice", options=list(voice_options.keys()))
-    selected_voice_id = voice_options[selected_voice_name]
-
-    # Generate button
-    if st.button("Generate Voice"):
-        if not text_input.strip():
-            st.warning("Please enter some text to convert to speech.")
-        else:
-            with st.spinner("Generating voice..."):
-                # Prepare voice settings with all parameters
-                voice_settings = {
-                    "stability": stability,
-                    "similarity_boost": similarity_boost,
-                    "style": style_exaggeration,
-                    "speaker_boost": True,  # Always set to True
-                    "speed": speed
-                }
-                
-                audio_data = generate_voice(
-                    api_key, 
-                    selected_voice_id, 
-                    text_input, 
-                    selected_model_id,
-                    voice_settings
-                )
-                
-                if audio_data:
-                    # Display audio player
-                    st.audio(audio_data, format="audio/mp3")
+        # Generate button
+        if st.button("Generate Voice"):
+            if not text_input.strip():
+                st.warning("Please enter some text to convert to speech.")
+            else:
+                with st.spinner("Generating voice..."):
+                    # Prepare voice settings with all parameters
+                    voice_settings = {
+                        "stability": stability,
+                        "similarity_boost": similarity_boost,
+                        "style": style_exaggeration,
+                        "speaker_boost": True,  # Always set to True
+                        "speed": speed
+                    }
                     
-                    # Display download link
-                    st.markdown(get_audio_download_link(audio_data), unsafe_allow_html=True)
+                    audio_data = generate_voice(
+                        api_key, 
+                        selected_voice_id, 
+                        text_input, 
+                        selected_model_id,
+                        voice_settings
+                    )
                     
-                    # Create a user-specific key for recent generations
-                    user_gen_key = f"recent_generations_{st.session_state.username}"
-                    
-                    # Save recent generation info to user-specific list
-                    if user_gen_key not in st.session_state:
-                        st.session_state[user_gen_key] = []
+                    if audio_data:
+                        # Display audio player
+                        st.audio(audio_data, format="audio/mp3")
                         
-                    st.session_state[user_gen_key].append({
-                        "text": text_input[:50] + "..." if len(text_input) > 50 else text_input,
-                        "voice": selected_voice_name,
-                        "model": selected_model,
-                        "audio_data": audio_data
-                    })
+                        # Display download link
+                        st.markdown(get_audio_download_link(audio_data), unsafe_allow_html=True)
+                        
+                        # Create a user-specific key for recent generations
+                        user_gen_key = f"recent_generations_{st.session_state.username}"
+                        
+                        # Save recent generation info to user-specific list
+                        if user_gen_key not in st.session_state:
+                            st.session_state[user_gen_key] = []
+                            
+                        st.session_state[user_gen_key].append({
+                            "text": text_input[:50] + "..." if len(text_input) > 50 else text_input,
+                            "voice": selected_voice_name,
+                            "model": selected_model,
+                            "audio_data": audio_data
+                        })
+    
+    with vc_tab:
+        # Add the voice changer section
+        add_voice_changer_section()
 
     # Recent generations section
     st.markdown("---")
-    st.header("Recent Generations")
+    
+    # Create tabs for different types of recent generations
+    gen_tab1, gen_tab2 = st.tabs(["Recent Text-to-Speech", "Recent Voice Transformations"])
+    
+    with gen_tab1:
+        st.header("Recent Text-to-Speech Generations")
+        # Get user-specific text-to-speech generations
+        user_gen_key = f"recent_generations_{st.session_state.username}"
 
-    # Get user-specific generations
-    user_gen_key = f"recent_generations_{st.session_state.username}"
+        if user_gen_key in st.session_state and st.session_state[user_gen_key]:
+            for i, gen in enumerate(reversed(st.session_state[user_gen_key][-5:])):  # Show last 5
+                with st.expander(f"{gen['voice']} ({gen.get('model', 'Default Model')}): {gen['text']}"):
+                    st.audio(gen["audio_data"], format="audio/mp3")
+                    st.markdown(get_audio_download_link(gen["audio_data"], f"{gen['voice']}_{i}.mp3"), unsafe_allow_html=True)
+        else:
+            st.info("Your recent text-to-speech generations will appear here.")
+    
+    with gen_tab2:
+        st.header("Recent Voice Transformations")
+        # Get user-specific voice transformations
+        user_transform_key = f"voice_transformations_{st.session_state.username}"
 
-    if user_gen_key in st.session_state and st.session_state[user_gen_key]:
-        for i, gen in enumerate(reversed(st.session_state[user_gen_key][-5:])):  # Show last 5
-            with st.expander(f"{gen['voice']} ({gen.get('model', 'Default Model')}): {gen['text']}"):
-                st.audio(gen["audio_data"], format="audio/mp3")
-                st.markdown(get_audio_download_link(gen["audio_data"], f"{gen['voice']}_{i}.mp3"), unsafe_allow_html=True)
-    else:
-        st.info("Your recent voice generations will appear here.")
+        if user_transform_key in st.session_state and st.session_state[user_transform_key]:
+            for i, transform in enumerate(reversed(st.session_state[user_transform_key][-5:])):  # Show last 5
+                if transform["type"] == "speech_to_speech":
+                    with st.expander(f"Speech-to-Speech: {transform['target_voice']} ({transform.get('model', 'Default Model')})"):
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            st.subheader("Original")
+                            st.audio(transform["original_audio"], format="audio/mp3")
+                        with col2:
+                            st.subheader("Transformed")
+                            st.audio(transform["transformed_audio"], format="audio/mp3")
+                            st.markdown(get_audio_download_link(transform["transformed_audio"], f"s2s_{transform['target_voice']}_{i}.mp3"), unsafe_allow_html=True)
+                else:  # basic_effects
+                    with st.expander(f"Basic Effects: Pitch {transform['pitch_shift']}, Speed {transform['speed_factor']}"):
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            st.subheader("Original")
+                            st.audio(transform["original_audio"], format="audio/mp3")
+                        with col2:
+                            st.subheader("Transformed")
+                            st.audio(transform["transformed_audio"], format="audio/mp3")
+                            st.markdown(get_audio_download_link(transform["transformed_audio"], f"effect_p{transform['pitch_shift']}_s{transform['speed_factor']}_{i}.mp3"), unsafe_allow_html=True)
+        else:
+            st.info("Your recent voice transformations will appear here.")
 
     # Add some additional tips
     with st.expander("Tips for better voice generation"):
