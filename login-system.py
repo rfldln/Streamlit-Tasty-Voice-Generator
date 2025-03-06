@@ -327,54 +327,6 @@ def show_login_page():
     .logo-container svg path[fill="#1E88E5"] {
         fill: #8e2de2 !important;
     }
-    
-    /* Aggressive method to remove "press enter to submit" tooltips */
-    input::-webkit-credentials-auto-fill-button,
-    input::-webkit-contacts-auto-fill-button,
-    input::-webkit-calendar-picker-indicator,
-    input::-webkit-validation-bubble-message,
-    input::-webkit-inner-spin-button,
-    input::-webkit-search-cancel-button,
-    ::-webkit-validation-bubble-message, 
-    ::-webkit-validation-bubble-icon, 
-    ::-webkit-validation-bubble-arrow,
-    ::-ms-clear,
-    ::-ms-reveal {
-        display: none !important;
-        visibility: hidden !important;
-        opacity: 0 !important;
-        appearance: none !important;
-        -webkit-appearance: none !important;
-    }
-    
-    /* Force input styling to override browser defaults */
-    form input, 
-    [data-baseweb="input"] input,
-    .stTextInput input {
-        appearance: none !important;
-        -moz-appearance: none !important;
-        -webkit-appearance: none !important;
-        -webkit-user-modify: read-write !important;
-        -webkit-tap-highlight-color: rgba(0,0,0,0) !important;
-        outline: none !important;
-    }
-    
-    /* Prevent tooltip display */
-    [title] {
-        position: relative !important;
-    }
-    
-    [title]:after {
-        content: none !important;
-        display: none !important;
-    }
-    
-    /* Override Streamlit's tooltip styling */
-    div[data-baseweb="tooltip"] {
-        display: none !important;
-        opacity: 0 !important;
-        visibility: hidden !important;
-    }
     </style>
     """, unsafe_allow_html=True)
     
@@ -403,22 +355,23 @@ def show_login_page():
         # Title
         st.markdown('<h1 class="login-title">Tasty Voice Generator</h1>', unsafe_allow_html=True)
 
-        # Alternative approach: Use regular inputs instead of a form
-        # This avoids the "press enter to submit" tooltips since there's no form submission
-        username = st.text_input("Username", key="username_input")
-        password = st.text_input("Password", type="password", key="password_input")
-        
-        # Custom button instead of form submit button
-        if st.button("Sign in", use_container_width=True, key="login_button"):
-            if login_user(username, password, st.session_state.users):
-                st.session_state.logged_in = True
-                st.session_state.username = username
-                st.session_state.is_admin = st.session_state.users[username]["is_admin"]
-                st.success("Login successful! Redirecting...")
-                time.sleep(1)  # Short delay for better UX
-                st.rerun()
-            else:
-                st.error("Invalid username or password")
+        # Use a form for Enter key functionality with styled button
+        with st.form("login_form", clear_on_submit=False):
+            username = st.text_input("Username")
+            password = st.text_input("Password", type="password")
+            
+            submit_button = st.form_submit_button("Sign in", use_container_width=True)
+            
+            if submit_button:
+                if login_user(username, password, st.session_state.users):
+                    st.session_state.logged_in = True
+                    st.session_state.username = username
+                    st.session_state.is_admin = st.session_state.users[username]["is_admin"]
+                    st.success("Login successful! Redirecting...")
+                    time.sleep(1)  # Short delay for better UX
+                    st.rerun()
+                else:
+                    st.error("Invalid username or password")
         
         # Add the dark theme note
         st.markdown('<div class="theme-note">💡 This app looks best in dark theme!</div>', unsafe_allow_html=True)
