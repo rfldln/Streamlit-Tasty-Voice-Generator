@@ -128,6 +128,11 @@ def show_login_page():
     # Apply custom CSS for the login page
     st.markdown("""
     <style>
+        /* Background color for the entire app */
+        .stApp {
+            background-color: #0e1117;
+        }
+        
         /* Title styling */
         .login-title {
             font-size: 2rem;
@@ -377,6 +382,15 @@ def main():
         page_icon="🔊",
         layout="wide"
     )
+    
+    # Add custom CSS to set the background color
+    st.markdown("""
+    <style>
+        .stApp {
+            background-color: #0e1117;
+        }
+    </style>
+    """, unsafe_allow_html=True)
     
     # Check if user is logged in
     if "logged_in" not in st.session_state or not st.session_state.logged_in:
