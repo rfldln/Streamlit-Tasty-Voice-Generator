@@ -122,146 +122,199 @@ def delete_user(username, users, current_user):
     save_users(users)
     return True, f"User '{username}' deleted successfully"
 
-# Login page - enhanced with more aggressive styling
+# Login page - with space theme
 def show_login_page():
-    """Show the styled login page with more robust CSS"""
+    """Show the styled login page with space theme"""
     # Apply universal CSS at the beginning of the app
     st.markdown("""
     <style>
-        /* Reset some basic elements */
-        * {
-            box-sizing: border-box;
+    /* Global app styling */
+    .stApp {
+        font-family: 'Poppins', 'Inter', sans-serif !important;
+        background: linear-gradient(135deg, #0f0c29, #302b63, #24243e) !important;
+        color: #e0e0ff !important;
+    }
+
+    /* Custom background - creates a subtle starfield effect */
+    .stApp::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: 
+            radial-gradient(1px 1px at 25% 15%, white, transparent),
+            radial-gradient(1px 1px at 50% 35%, rgba(255, 255, 255, 0.8), transparent),
+            radial-gradient(1px 1px at 75% 50%, rgba(255, 255, 255, 0.9), transparent),
+            radial-gradient(2px 2px at 20% 65%, rgba(255, 255, 255, 0.7), transparent),
+            radial-gradient(2px 2px at 40% 80%, rgba(255, 255, 255, 0.8), transparent),
+            radial-gradient(1px 1px at 60% 25%, rgba(255, 255, 255, 0.9), transparent),
+            radial-gradient(1px 1px at 85% 85%, rgba(255, 255, 255, 0.8), transparent);
+        background-repeat: repeat;
+        background-size: 250px 250px;
+        opacity: 0.15;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    /* Main content container */
+    .block-container {
+        background-color: rgba(30, 30, 60, 0.7) !important;
+        border-radius: 16px !important;
+        backdrop-filter: blur(8px) !important;
+        -webkit-backdrop-filter: blur(8px) !important;
+        border: 1px solid rgba(123, 97, 255, 0.2) !important;
+        padding: 2rem !important;
+        margin-top: 1rem !important;
+        margin-bottom: 1rem !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    /* Title styling */
+    h1, h2, h3, h4, h5, h6 {
+        color: #aa80ff !important;
+        font-weight: 600 !important;
+        text-shadow: 0 0 10px rgba(170, 128, 255, 0.5) !important;
+        letter-spacing: 0.02em !important;
+    }
+
+    .login-title {
+        font-size: 2.2rem !important;
+        font-weight: 600 !important;
+        text-align: center !important;
+        margin-bottom: 1.5rem !important;
+        color: #aa80ff !important;
+        text-shadow: 0 0 15px rgba(170, 128, 255, 0.6) !important;
+    }
+
+    /* Logo styling */
+    .logo-container {
+        text-align: center !important;
+        margin-bottom: 2rem !important;
+        filter: drop-shadow(0 0 8px rgba(170, 128, 255, 0.7)) !important;
+    }
+
+    /* Input field styling - space-themed */
+    .stTextInput input,
+    [data-baseweb="input"] input,
+    .css-1n76uvr input,
+    input[type="text"],
+    input[type="password"] {
+        border-radius: 8px !important;
+        padding: 12px 16px !important;
+        background-color: rgba(30, 30, 70, 0.6) !important;
+        border: 1px solid rgba(123, 97, 255, 0.4) !important;
+        color: #e0e0ff !important;
+        width: 100% !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 0 5px rgba(123, 97, 255, 0.1) inset !important;
+    }
+
+    /* Focus states */
+    .stTextInput [data-baseweb="input"]:focus-within,
+    .stTextInput div[data-focused="true"],
+    [data-baseweb="input"]:focus-within {
+        border-color: #aa80ff !important;
+        box-shadow: 0 0 8px rgba(170, 128, 255, 0.6) !important;
+    }
+
+    /* Cosmic button styling */
+    .stButton > button,
+    button[kind="primaryFormSubmit"],
+    [data-testid="stFormSubmitButton"] > button,
+    form [data-testid="stFormSubmitButton"] button {
+        width: 100% !important;
+        background: linear-gradient(135deg, #8e2de2, #4a00e0) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 8px !important;
+        padding: 12px 0 !important;
+        font-weight: 500 !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        margin-top: 10px !important;
+        margin-bottom: 10px !important;
+        display: block !important;
+        text-align: center !important;
+        box-shadow: 0 4px 15px rgba(138, 43, 226, 0.4) !important;
+        text-transform: uppercase !important;
+        letter-spacing: 1px !important;
+        font-size: 0.9rem !important;
+    }
+
+    /* Hover styles for buttons */
+    .stButton > button:hover,
+    button[kind="primaryFormSubmit"]:hover,
+    [data-testid="stFormSubmitButton"] > button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 20px rgba(138, 43, 226, 0.6) !important;
+        background: linear-gradient(135deg, #9b4dff, #4a00e0) !important;
+    }
+
+    /* Error and success messages - space-themed */
+    .stAlert {
+        border-radius: 8px !important;
+        margin-top: 1.5rem !important;
+        padding: 1rem !important;
+        border: none !important;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2) !important;
+        background-color: rgba(40, 40, 80, 0.7) !important;
+        backdrop-filter: blur(4px) !important;
+        -webkit-backdrop-filter: blur(4px) !important;
+    }
+
+    /* Footer styling */
+    .footer {
+        text-align: center !important;
+        margin-top: 3rem !important;
+        font-size: 0.9rem !important;
+        color: rgba(224, 224, 255, 0.7) !important;
+        padding-bottom: 2rem !important;
+    }
+
+    /* Hide default streamlit elements */
+    #MainMenu {visibility: hidden !important;}
+    footer {visibility: hidden !important;}
+
+    /* Center the login form */
+    .centered-content {
+        margin-top: 10vh !important;
+        padding: 2.5rem !important;
+        background-color: rgba(30, 30, 60, 0.7) !important;
+        border-radius: 16px !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+        max-width: 400px !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        backdrop-filter: blur(8px) !important;
+        -webkit-backdrop-filter: blur(8px) !important;
+        border: 1px solid rgba(123, 97, 255, 0.2) !important;
+    }
+
+    /* Add a subtle cosmic pulse animation to the login button */
+    form [data-testid="stFormSubmitButton"] button {
+        animation: cosmicPulse 4s infinite alternate !important;
+    }
+
+    @keyframes cosmicPulse {
+        0% {
+            box-shadow: 0 4px 15px rgba(138, 43, 226, 0.4);
         }
-        
-        /* Title styling */
-        .login-title {
-            font-size: 2rem !important;
-            font-weight: 600 !important;
-            text-align: center !important;
-            margin-bottom: 1rem !important;
-            color: #1E88E5 !important;
+        100% {
+            box-shadow: 0 4px 25px rgba(138, 43, 226, 0.7);
         }
-        
-        /* Logo styling */
-        .logo-container {
-            text-align: center !important;
-            margin-bottom: 1rem !important;
-        }
-        
-        /* More aggressive styling for input fields with multiple selectors */
-        .stTextInput input,
-        [data-baseweb="input"] input,
-        .css-1n76uvr input,
-        input[type="text"],
-        input[type="password"] {
-            border-radius: 5px !important;
-            padding: 10px 15px !important;
-            background-color: #262730 !important;
-            width: 100% !important;
-        }
-        
-        /* Targeted focus states */
-        .stTextInput [data-baseweb="input"]:focus-within,
-        .stTextInput div[data-focused="true"],
-        [data-baseweb="input"]:focus-within {
-            border-color: #1E88E5 !important;
-            box-shadow: 0 0 0 1px #1E88E5 !important;
-        }
-        
-        /* Additional targeting to override focus styling */
-        .stTextInput div[data-focused="true"] > div,
-        [data-baseweb="input"]:focus-within > div {
-            border-color: #1E88E5 !important;
-            box-shadow: none !important;
-        }
-        
-        /* Default border color */
-        .stTextInput div,
-        [data-baseweb="input"] div {
-            border-color: transparent !important;
-        }
-        
-        /* Label styling with !important */
-        .stTextInput > label,
-        [data-baseweb="input"] + label {
-            font-weight: 500 !important;
-            color: #424242 !important;
-        }
-        
-        /* Ultra aggressive button styling to override all Streamlit defaults */
-        div[data-testid="stForm"] .stButton > button,
-        .stButton > button,
-        button[kind="primaryFormSubmit"],
-        [data-testid="stFormSubmitButton"] > button,
-        form [data-testid="stFormSubmitButton"] button,
-        button.css-1x8cf1d,
-        button.css-7ym5gk,
-        button.css-13q3t3r,
-        button.css-1vgnxcy {
-            width: 100% !important;
-            background-color: #1E88E5 !important;
-            color: white !important;
-            border: none !important;
-            border-radius: 5px !important;
-            padding: 10px 0 !important;
-            font-weight: 500 !important;
-            cursor: pointer !important;
-            transition: background-color 0.3s !important;
-            margin-top: 5px !important;
-            margin-bottom: 5px !important;
-            display: block !important;
-            text-align: center !important;
-            box-shadow: none !important;
-        }
-        
-        /* Hover styles for all buttons with ultra-specific selectors */
-        .stButton > button:hover,
-        button[kind="primaryFormSubmit"]:hover,
-        [data-testid="stFormSubmitButton"] > button:hover,
-        button.css-1x8cf1d:hover,
-        button.css-7ym5gk:hover,
-        button.css-13q3t3r:hover,
-        button.css-1vgnxcy:hover {
-            background-color: #154b82 !important;
-            color: white !important;
-            border: none !important;
-        }
-        
-        /* Error and success messages */
-        .stAlert {
-            text-align: center !important;
-            border-radius: 5px !important;
-            margin-top: 1.5rem !important;
-        }
-        
-        /* Footer styling */
-        .footer {
-            text-align: center !important;
-            margin-top: 2.5rem !important;
-            font-size: 0.8rem !important;
-            color: #757575 !important;
-        }
-        
-        /* Hide default streamlit elements */
-        #MainMenu {visibility: hidden !important;}
-        footer {visibility: hidden !important;}
-        
-        /* Center the login form vertically */
-        .centered-content {
-            margin-top: 10vh !important;
-        }
-        
-        /* Ensure form widgets display properly */
-        .stForm > div {
-            width: 100% !important;
-        }
-        
-        /* Cursor pointer for selectable items */
-        div[data-baseweb="select"],
-        div[data-baseweb="select"] > div,
-        li[role="option"] {
-            cursor: pointer !important;
-        }
+    }
+
+    /* Logo color modification to match the space theme */
+    .logo-container svg circle,
+    .logo-container svg path {
+        stroke: #aa80ff !important;
+    }
+
+    .logo-container svg path[fill="#1E88E5"] {
+        fill: #8e2de2 !important;
+    }
     </style>
     """, unsafe_allow_html=True)
     
@@ -279,83 +332,89 @@ def show_login_page():
         st.markdown('''
         <div class="logo-container">
             <svg width="70" height="70" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="12" cy="12" r="10" stroke="#1E88E5" stroke-width="2"/>
-                <path d="M8 12C8 10.8954 8.89543 10 10 10H14C15.1046 10 16 10.8954 16 12V16C16 17.1046 15.1046 18 14 18H10C8.89543 18 8 17.1046 8 16V12Z" fill="#1E88E5"/>
-                <path d="M10 7L14 7" stroke="#1E88E5" stroke-width="2" stroke-linecap="round"/>
-                <path d="M12 10V7" stroke="#1E88E5" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="12" cy="12" r="10" stroke="#aa80ff" stroke-width="2"/>
+                <path d="M8 12C8 10.8954 8.89543 10 10 10H14C15.1046 10 16 10.8954 16 12V16C16 17.1046 15.1046 18 14 18H10C8.89543 18 8 17.1046 8 16V12Z" fill="#8e2de2"/>
+                <path d="M10 7L14 7" stroke="#aa80ff" stroke-width="2" stroke-linecap="round"/>
+                <path d="M12 10V7" stroke="#aa80ff" stroke-width="2" stroke-linecap="round"/>
             </svg>
         </div>
         ''', unsafe_allow_html=True)
         
         # Title
-        st.markdown('<h1 class="login-title">Tasty Voice Generator</h1>', unsafe_allow_html=True)
+        st.markdown('<h1 class="login-title">Cosmic Voice Generator</h1>', unsafe_allow_html=True)
 
         # Use a form for Enter key functionality with styled button
         with st.form("login_form", clear_on_submit=False):
             username = st.text_input("Username")
             password = st.text_input("Password", type="password")
             
-            # Additional inline CSS specifically for the form submit button
-            st.markdown("""
-            <style>
-            /* Additional specific styling for THIS form's submit button */
-            form[data-testid="stForm"] [data-testid="stFormSubmitButton"] > button {
-                background-color: #1E88E5 !important;
-                color: white !important;
-                border: none !important;
-                border-radius: 5px !important;
-                padding: 10px 0 !important;
-                font-weight: 500 !important;
-                width: 100% !important;
-                display: block !important;
-            }
-            </style>
-            """, unsafe_allow_html=True)
-            
-            submit_button = st.form_submit_button("Sign In", use_container_width=True)
+            submit_button = st.form_submit_button("ENTER THE COSMOS", use_container_width=True)
             
             if submit_button:
                 if login_user(username, password, st.session_state.users):
                     st.session_state.logged_in = True
                     st.session_state.username = username
                     st.session_state.is_admin = st.session_state.users[username]["is_admin"]
-                    st.success("Login successful! Redirecting...")
+                    st.success("Login successful! Preparing your journey...")
                     time.sleep(1)  # Short delay for better UX
                     st.rerun()
                 else:
                     st.error("Invalid username or password")
         
         # Footer
-        st.markdown('<div class="footer">© 2025 Tasty Voice Generator</div>', unsafe_allow_html=True)
+        st.markdown('<div class="footer">© 2025 Cosmic Voice Generator</div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)  # Close the centered content
 
 def show_admin_panel():
     """Show the admin panel for user management"""
-    st.title("Admin Panel - User Management")
+    st.title("Cosmic Control Panel")
     
     # Additional CSS for admin panel
     st.markdown("""
     <style>
-        /* Admin panel specific styles */
-        .admin-header {
-            color: #1E88E5 !important;
-            margin-bottom: 1rem !important;
-        }
-        
-        /* Table styling */
-        .stTable {
-            border-collapse: collapse !important;
-        }
-        
-        .stTable th {
-            background-color: #f5f5f5 !important;
-            font-weight: 600 !important;
-        }
-        
-        .stTable td, .stTable th {
-            padding: 8px 12px !important;
-            border: 1px solid #e0e0e0 !important;
-        }
+    /* Admin panel specific styles */
+    .admin-header {
+        color: #aa80ff !important;
+        margin-bottom: 1.5rem !important;
+        text-shadow: 0 0 10px rgba(170, 128, 255, 0.5) !important;
+    }
+    
+    /* Table styling - space themed */
+    .stTable {
+        background-color: rgba(30, 30, 70, 0.6) !important;
+        border-radius: 8px !important;
+        overflow: hidden !important;
+    }
+
+    .stTable th {
+        background-color: rgba(60, 50, 100, 0.7) !important;
+        color: #d4c0ff !important;
+        padding: 1rem !important;
+        text-align: left !important;
+        font-weight: 500 !important;
+    }
+
+    .stTable td {
+        background-color: rgba(40, 40, 80, 0.5) !important;
+        color: #e0e0ff !important;
+        padding: 0.75rem 1rem !important;
+        border-bottom: 1px solid rgba(123, 97, 255, 0.2) !important;
+    }
+    
+    /* Form spacing */
+    form {
+        margin-bottom: 2rem !important;
+    }
+    
+    /* Checkbox styling */
+    .stCheckbox [data-baseweb="checkbox"] {
+        margin-bottom: 1rem !important;
+    }
+
+    .stCheckbox [data-baseweb="checkbox"] div[data-testid="stMarkdownContainer"] p {
+        font-size: 1rem !important;
+        color: #d4c0ff !important;
+    }
     </style>
     """, unsafe_allow_html=True)
     
@@ -370,7 +429,7 @@ def show_admin_panel():
         new_password = st.text_input("Password", type="password")
         confirm_password = st.text_input("Confirm Password", type="password")
         is_admin = st.checkbox("Is Admin")
-        create_button = st.form_submit_button("Create User")
+        create_button = st.form_submit_button("CREATE USER")
         
         if create_button:
             if new_password != confirm_password:
@@ -410,7 +469,7 @@ def show_admin_panel():
     else:
         with st.form("delete_user_form"):
             user_to_delete = st.selectbox("Select User to Delete", options=delete_options)
-            delete_button = st.form_submit_button("Delete User")
+            delete_button = st.form_submit_button("DELETE USER")
             
             if delete_button:
                 success, message = delete_user(
@@ -433,90 +492,368 @@ def show_admin_panel():
 def main():
     # Set page config
     st.set_page_config(
-        page_title="Tasty Voice Generator",
-        page_icon="🔊",
+        page_title="Cosmic Voice Generator",
+        page_icon="🌌",
         layout="wide"
     )
     
-    # Apply global app CSS
+    # Apply global app CSS with space theme
     st.markdown("""
     <style>
-        /* Global app styling */
-        .stApp {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
-        }
-        
-        /* Headers */
-        h1, h2, h3, h4, h5, h6 {
-            color: #1E88E5 !important;
-            font-weight: 600 !important;
-        }
-        
-        /* Form elements */
-        .stSlider > div[data-baseweb="slider"] {
-            margin-top: 10px !important;
-            margin-bottom: 10px !important;
-        }
-        
-        .stSelectbox > div[data-baseweb="select"] {
-            cursor: pointer !important;
-        }
-        
-        /* Audio player styling */
-        audio {
-            width: 100% !important;
-            margin-top: 10px !important;
-            margin-bottom: 10px !important;
-        }
-        
-        /* Download link styling */
-        a[download] {
-            display: inline-block !important;
-            background-color: #4CAF50 !important;
-            color: white !important;
-            padding: 8px 16px !important;
-            text-decoration: none !important;
-            border-radius: 4px !important;
-            margin-top: 10px !important;
-            margin-bottom: 10px !important;
-            font-weight: 500 !important;
-            transition: background-color 0.3s !important;
-        }
-        
-        a[download]:hover {
-            background-color: #3e8e41 !important;
-        }
-        
-        /* Expander styling */
-        .streamlit-expanderHeader {
-            font-weight: 500 !important;
-            color: #424242 !important;
-        }
-        
-        /* Sidebar styling */
-        .css-1d391kg, .css-1lcbmhc {
-            background-color: #f5f5f5 !important;
-        }
-        
-        /* Tab styling */
-        .stTabs [data-baseweb="tab-list"] {
-            gap: 8px;
-        }
-        
-        .stTabs [data-baseweb="tab"] {
-            height: 50px;
-            white-space: pre-wrap;
-            background-color: #f0f2f6;
-            border-radius: 4px 4px 0 0;
-            gap: 1px;
-            padding-top: 10px;
-            padding-bottom: 10px;
-        }
-        
-        .stTabs [aria-selected="true"] {
-            background-color: #1E88E5 !important;
-            color: white !important;
-        }
+    /* Global app styling */
+    .stApp {
+        font-family: 'Poppins', 'Inter', sans-serif !important;
+        background: linear-gradient(135deg, #0f0c29, #302b63, #24243e) !important;
+        color: #e0e0ff !important;
+    }
+
+    /* Custom background - creates a subtle starfield effect */
+    .stApp::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: 
+            radial-gradient(1px 1px at 25% 15%, white, transparent),
+            radial-gradient(1px 1px at 50% 35%, rgba(255, 255, 255, 0.8), transparent),
+            radial-gradient(1px 1px at 75% 50%, rgba(255, 255, 255, 0.9), transparent),
+            radial-gradient(2px 2px at 20% 65%, rgba(255, 255, 255, 0.7), transparent),
+            radial-gradient(2px 2px at 40% 80%, rgba(255, 255, 255, 0.8), transparent),
+            radial-gradient(1px 1px at 60% 25%, rgba(255, 255, 255, 0.9), transparent),
+            radial-gradient(1px 1px at 85% 85%, rgba(255, 255, 255, 0.8), transparent);
+        background-repeat: repeat;
+        background-size: 250px 250px;
+        opacity: 0.15;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    /* Main content container */
+    .block-container {
+        background-color: rgba(30, 30, 60, 0.7) !important;
+        border-radius: 16px !important;
+        backdrop-filter: blur(8px) !important;
+        -webkit-backdrop-filter: blur(8px) !important;
+        border: 1px solid rgba(123, 97, 255, 0.2) !important;
+        padding: 2rem !important;
+        margin-top: 1rem !important;
+        margin-bottom: 1rem !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    /* Title styling */
+    h1, h2, h3, h4, h5, h6 {
+        color: #aa80ff !important;
+        font-weight: 600 !important;
+        text-shadow: 0 0 10px rgba(170, 128, 255, 0.5) !important;
+        letter-spacing: 0.02em !important;
+    }
+
+    /* Input field styling - space-themed */
+    .stTextInput input,
+    [data-baseweb="input"] input,
+    .css-1n76uvr input,
+    input[type="text"],
+    input[type="password"] {
+        border-radius: 8px !important;
+        padding: 12px 16px !important;
+        background-color: rgba(30, 30, 70, 0.6) !important;
+        border: 1px solid rgba(123, 97, 255, 0.4) !important;
+        color: #e0e0ff !important;
+        width: 100% !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 0 5px rgba(123, 97, 255, 0.1) inset !important;
+    }
+
+    /* Focus states */
+    .stTextInput [data-baseweb="input"]:focus-within,
+    .stTextInput div[data-focused="true"],
+    [data-baseweb="input"]:focus-within {
+        border-color: #aa80ff !important;
+        box-shadow: 0 0 8px rgba(170, 128, 255, 0.6) !important;
+    }
+
+    /* Cosmic button styling */
+    .stButton > button,
+    button[kind="primaryFormSubmit"],
+    [data-testid="stFormSubmitButton"] > button,
+    form [data-testid="stFormSubmitButton"] button {
+        width: 100% !important;
+        background: linear-gradient(135deg, #8e2de2, #4a00e0) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 8px !important;
+        padding: 12px 0 !important;
+        font-weight: 500 !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        margin-top: 10px !important;
+        margin-bottom: 10px !important;
+        display: block !important;
+        text-align: center !important;
+        box-shadow: 0 4px 15px rgba(138, 43, 226, 0.4) !important;
+        text-transform: uppercase !important;
+        letter-spacing: 1px !important;
+        font-size: 0.9rem !important;
+    }
+
+    /* Hover styles for buttons */
+    .stButton > button:hover,
+    button[kind="primaryFormSubmit"]:hover,
+    [data-testid="stFormSubmitButton"] > button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 20px rgba(138, 43, 226, 0.6) !important;
+        background: linear-gradient(135deg, #9b4dff, #4a00e0) !important;
+    }
+
+    /* Expander styling */
+    .streamlit-expanderHeader {
+        font-weight: 500 !important;
+        color: #d4c0ff !important;
+        background-color: rgba(60, 50, 100, 0.6) !important;
+        border-radius: 8px !important;
+        padding: 0.75rem 1rem !important;
+        border-left: 3px solid #8e2de2 !important;
+    }
+
+    /* Slider styling */
+    .stSlider > div[data-baseweb="slider"] {
+        margin-top: 2rem !important;
+        margin-bottom: 2rem !important;
+    }
+
+    .stSlider [data-testid="stThumbValue"] {
+        background-color: #8e2de2 !important;
+        color: white !important;
+    }
+
+    .stSlider [data-testid="stThumbValue"]::before {
+        border-bottom-color: #8e2de2 !important;
+    }
+
+    /* Style the track of the slider */
+    .stSlider [role="slider"] {
+        background-color: #aa80ff !important;
+        box-shadow: 0 0 8px rgba(170, 128, 255, 0.8) !important;
+    }
+
+    /* Sidebar styling - space-themed */
+    .css-1d391kg, .css-1lcbmhc {
+        background: linear-gradient(180deg, #302b63, #24243e) !important;
+        border-right: 1px solid rgba(123, 97, 255, 0.2) !important;
+    }
+
+    /* Tab styling */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 2px;
+        border-bottom: 1px solid rgba(123, 97, 255, 0.3);
+        background-color: rgba(40, 40, 80, 0.6) !important;
+        border-radius: 8px 8px 0 0 !important;
+        padding: 0 16px !important;
+    }
+
+    .stTabs [data-baseweb="tab"] {
+        height: 50px;
+        white-space: pre-wrap;
+        background-color: transparent;
+        border-radius: 8px 8px 0 0;
+        gap: 1px;
+        padding: 10px 16px;
+        font-weight: 500;
+        color: #aa80ff;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .stTabs [aria-selected="true"] {
+        background-color: rgba(123, 97, 255, 0.2) !important;
+        color: #d4c0ff !important;
+        box-shadow: 0 -2px 8px rgba(123, 97, 255, 0.3) !important;
+    }
+
+    /* Cards for recent generations */
+    .stExpander {
+        background-color: rgba(40, 40, 80, 0.6) !important;
+        border-radius: 8px !important;
+        border: 1px solid rgba(123, 97, 255, 0.3) !important;
+        margin-bottom: 1rem !important;
+        transition: all 0.3s ease !important;
+        backdrop-filter: blur(4px) !important;
+        -webkit-backdrop-filter: blur(4px) !important;
+    }
+
+    .stExpander:hover {
+        box-shadow: 0 0 15px rgba(123, 97, 255, 0.3) !important;
+        border: 1px solid rgba(123, 97, 255, 0.5) !important;
+    }
+
+    /* Audio player styling */
+    audio {
+        width: 100% !important;
+        margin-top: 15px !important;
+        margin-bottom: 15px !important;
+        border-radius: 8px !important;
+        background-color: rgba(40, 40, 80, 0.6) !important;
+        box-shadow: 0 0 10px rgba(123, 97, 255, 0.2) !important;
+    }
+
+    /* Custom audio player controls */
+    audio::-webkit-media-controls-panel {
+        background-color: rgba(30, 30, 70, 0.8) !important;
+    }
+
+    audio::-webkit-media-controls-current-time-display,
+    audio::-webkit-media-controls-time-remaining-display {
+        color: #d4c0ff !important;
+    }
+
+    /* Download link styling */
+    a[download] {
+        display: inline-block !important;
+        background: linear-gradient(135deg, #8e2de2, #4a00e0) !important;
+        color: white !important;
+        padding: 8px 16px !important;
+        text-decoration: none !important;
+        border-radius: 8px !important;
+        margin-top: 10px !important;
+        margin-bottom: 10px !important;
+        font-weight: 500 !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 2px 10px rgba(123, 97, 255, 0.4) !important;
+        text-transform: uppercase !important;
+        font-size: 0.8rem !important;
+        letter-spacing: 1px !important;
+    }
+
+    a[download]:hover {
+        background: linear-gradient(135deg, #9b4dff, #4a00e0) !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 4px 15px rgba(123, 97, 255, 0.6) !important;
+    }
+
+    /* Error and success messages - space-themed */
+    .stAlert {
+        border-radius: 8px !important;
+        margin-top: 1.5rem !important;
+        padding: 1rem !important;
+        border: none !important;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2) !important;
+        background-color: rgba(40, 40, 80, 0.7) !important;
+        backdrop-filter: blur(4px) !important;
+        -webkit-backdrop-filter: blur(4px) !important;
+    }
+
+    /* Text area styling */
+    .stTextArea textarea {
+        border-radius: 8px !important;
+        border: 1px solid rgba(123, 97, 255, 0.4) !important;
+        background-color: rgba(30, 30, 70, 0.6) !important;
+        padding: 12px 16px !important;
+        min-height: 120px !important;
+        transition: all 0.3s ease !important;
+        color: #e0e0ff !important;
+        box-shadow: 0 0 5px rgba(123, 97, 255, 0.1) inset !important;
+    }
+
+    .stTextArea textarea:focus {
+        border-color: #aa80ff !important;
+        box-shadow: 0 0 8px rgba(170, 128, 255, 0.6) !important;
+    }
+
+    /* File uploader styling */
+    .stFileUploader div[data-testid="stFileUploader"] {
+        padding: 1.5rem !important;
+        border: 2px dashed rgba(123, 97, 255, 0.4) !important;
+        border-radius: 8px !important;
+        background-color: rgba(30, 30, 70, 0.4) !important;
+        transition: all 0.3s ease !important;
+    }
+
+    .stFileUploader div[data-testid="stFileUploader"]:hover {
+        border-color: #aa80ff !important;
+        box-shadow: 0 0 15px rgba(123, 97, 255, 0.3) inset !important;
+    }
+
+    /* Select box styling */
+    .stSelectbox > div[data-baseweb="select"] > div {
+        background-color: rgba(30, 30, 70, 0.6) !important;
+        border: 1px solid rgba(123, 97, 255, 0.4) !important;
+        border-radius: 8px !important;
+        transition: all 0.3s ease !important;
+        color: #e0e0ff !important;
+    }
+
+    .stSelectbox > div[data-baseweb="select"] > div:hover {
+        border-color: #aa80ff !important;
+    }
+
+    /* Dropdown menu items */
+    div[role="listbox"] {
+        background-color: rgba(30, 30, 70, 0.95) !important;
+        border: 1px solid rgba(123, 97, 255, 0.4) !important;
+        border-radius: 8px !important;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3) !important;
+        backdrop-filter: blur(8px) !important;
+        -webkit-backdrop-filter: blur(8px) !important;
+    }
+
+    div[role="option"] {
+        color: #e0e0ff !important;
+    }
+
+    div[role="option"]:hover {
+        background-color: rgba(123, 97, 255, 0.2) !important;
+    }
+
+    /* Hide default streamlit elements */
+    #MainMenu {visibility: hidden !important;}
+    footer {visibility: hidden !important;}
+
+    /* Cosmic glow effect for the app title */
+    .stApp h1:first-child {
+        position: relative;
+        display: inline-block;
+    }
+
+    .stApp h1:first-child::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 100%;
+        height: 100%;
+        transform: translate(-50%, -50%);
+        z-index: -1;
+        filter: blur(20px);
+        background: radial-gradient(circle, rgba(170, 128, 255, 0.6) 0%, rgba(138, 43, 226, 0) 70%);
+    }
+
+    /* Label coloring */
+    label {
+        color: #d4c0ff !important;
+        font-weight: 500 !important;
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: rgba(30, 30, 70, 0.3);
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, #8e2de2, #4a00e0);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(180deg, #9b4dff, #4a00e0);
+    }
     </style>
     """, unsafe_allow_html=True)
     
@@ -540,11 +877,11 @@ def main():
         st.write(f"Logged in as: **{st.session_state.username}**")
         
         if st.session_state.is_admin:
-            if st.button("User Management"):
+            if st.button("Control Panel"):
                 st.session_state.show_admin = True
                 st.rerun()
         
-        if st.button("Logout"):
+        if st.button("Exit"):
             st.session_state.logged_in = False
             st.session_state.username = None
             st.session_state.is_admin = False
@@ -552,7 +889,7 @@ def main():
             
         st.markdown("---")
         
-        st.header("Model Selection")
+        st.header("Cosmic Engine")
         # Separate models for TTS and voice conversion
         tts_model_options = {
             "Multilingual v2 (Enhanced)": "eleven_multilingual_v2",
@@ -562,8 +899,8 @@ def main():
         }
         
         voice_conversion_model_options = {
-            "English Conversion Model": "eleven_english_sts_v2",
-            "Multilingual Voice Conversion": "eleven_multilingual_sts_v2"
+            "Multilingual Voice Conversion": "eleven_multilingual_sts_v2",
+            "English Conversion Model": "eleven_english_sts_v2"
         }
         
         # Store both model selections in session state
@@ -575,7 +912,7 @@ def main():
         
         # TTS model selection
         selected_tts_model = st.selectbox(
-            "Select Text-to-Speech Model", 
+            "Select Text-to-Speech Engine", 
             options=list(tts_model_options.keys()),
             key="tts_model_select",
             index=list(tts_model_options.keys()).index(st.session_state.tts_model)
@@ -585,7 +922,7 @@ def main():
         
         # Voice conversion model selection
         selected_vc_model = st.selectbox(
-            "Select Voice Conversion Model", 
+            "Select Voice Conversion Engine", 
             options=list(voice_conversion_model_options.keys()),
             key="vc_model_select",
             index=list(voice_conversion_model_options.keys()).index(st.session_state.vc_model)
@@ -593,7 +930,7 @@ def main():
         st.session_state.vc_model = selected_vc_model
         selected_vc_model_id = voice_conversion_model_options[selected_vc_model]
         
-        st.header("Voice Settings")
+        st.header("Cosmic Controls")
         stability = st.slider("Stability", min_value=0.0, max_value=1.0, value=0.5, step=0.01,
                             help="The voice will sound more consistent among re-generations if stability is increased, but it may also sound a little monotonous.  We advise reducing this value for lengthy text passages.")
         
@@ -608,7 +945,7 @@ def main():
                                     help="High values are recommended if the style of the speech should be exaggerated compared to the uploaded audio. Higher values can lead to more instability in the generated speech. Setting this to 0.0 will greatly increase generation speed and is the default setting.")
         
         st.markdown("---")
-        st.markdown("Made with ❤️ by raffyboi")
+        st.markdown("Made with ✨ by cosmic engineers")
 
     # Function to get available voices
     @st.cache_data(ttl=3600)  # Cache for one hour
@@ -686,7 +1023,7 @@ def main():
         }
         
         try:
-            st.info(f"Sending request to ElevenLabs with model: {model_id}")
+            st.info(f"Transmitting to cosmic servers with engine: {model_id}")
             response = requests.post(url, headers=headers, files=files, data=data)
             response.raise_for_status()
             return response.content
@@ -697,9 +1034,9 @@ def main():
             return None
 
     # Function to create download link with enhanced styling
-    def get_audio_download_link(audio_data, filename="generated_voice.mp3"):
+    def get_audio_download_link(audio_data, filename="cosmic_voice.mp3"):
         b64 = base64.b64encode(audio_data).decode()
-        href = f'<a href="data:audio/mpeg;base64,{b64}" download="{filename}">Download MP3</a>'
+        href = f'<a href="data:audio/mpeg;base64,{b64}" download="{filename}">DOWNLOAD COSMIC AUDIO</a>'
         return href
 
     # Check if API key is valid
@@ -717,28 +1054,28 @@ def main():
     voice_options = {voice["name"]: voice["voice_id"] for voice in voices_data["voices"]}
 
     # App title
-    st.title("Tasty Voice Generator")
+    st.title("Cosmic Voice Generator")
     
     # Create tabs
-    tab1, tab2 = st.tabs(["Text to Speech", "Voice Changer"])
+    tab1, tab2 = st.tabs(["Text to Cosmic Voice", "Voice Transmutation"])
     
     with tab1:
-        st.markdown("Generate realistic AI voices from text")
+        st.markdown("Generate otherworldly AI voices from your text")
         
         # Text input area
-        st.header("Enter Text to Convert")
-        text_input = st.text_area("Type or paste text here", height=150)
+        st.header("Enter Your Message")
+        text_input = st.text_area("Type your cosmic message here", height=150)
 
         # Voice selection
-        selected_voice_name = st.selectbox("Select Voice", options=list(voice_options.keys()))
+        selected_voice_name = st.selectbox("Select Cosmic Voice", options=list(voice_options.keys()))
         selected_voice_id = voice_options[selected_voice_name]
 
         # Generate button
-        if st.button("Generate Voice", key="generate_tts"):
+        if st.button("GENERATE COSMIC VOICE", key="generate_tts"):
             if not text_input.strip():
                 st.warning("Please enter some text to convert to speech.")
             else:
-                with st.spinner("Generating voice..."):
+                with st.spinner("Generating cosmic voice..."):
                     # Prepare voice settings with all parameters
                     voice_settings = {
                         "stability": stability,
@@ -780,7 +1117,7 @@ def main():
 
         # Recent generations section
         st.markdown("---")
-        st.header("Recent Generations")
+        st.header("Cosmic Archives")
 
         # Get user-specific generations for TTS
         user_gen_key = f"recent_generations_{st.session_state.username}"
@@ -791,50 +1128,50 @@ def main():
             
             if tts_generations:
                 for i, gen in enumerate(reversed(tts_generations[-5:])):  # Show last 5
-                    with st.expander(f"{gen['voice']} ({gen.get('model', 'Default Model')}): {gen['text']}"):
+                    with st.expander(f"{gen['voice']} ({gen.get('model', 'Default Engine')}): {gen['text']}"):
                         st.audio(gen["audio_data"], format="audio/mp3")
-                        st.markdown(get_audio_download_link(gen["audio_data"], f"{gen['voice']}_{i}.mp3"), unsafe_allow_html=True)
+                        st.markdown(get_audio_download_link(gen["audio_data"], f"cosmic_{gen['voice']}_{i}.mp3"), unsafe_allow_html=True)
             else:
-                st.info("Your recent text-to-speech generations will appear here.")
+                st.info("Your cosmic voice recordings will appear here.")
         else:
-            st.info("Your recent voice generations will appear here.")
+            st.info("Your cosmic voice recordings will appear here.")
 
         # Tips for text-to-speech
-        with st.expander("Tips for better text-to-speech"):
+        with st.expander("Cosmic Voice Tips"):
             st.markdown("""
-            - For more natural sounding speech, include punctuation in your text
-            - Use commas and periods to control pacing
-            - Add question marks for rising intonation
-            - Try different stability and similarity boost settings for different effects
+            - For more natural cosmic voices, include punctuation in your text
+            - Use commas and periods to control the cosmic flow
+            - Add question marks for rising cosmic intonation
+            - Try different stability settings for varied cosmic effects
             - Higher stability makes the voice more consistent but less expressive
-            - Higher similarity boost makes the voice sound more like the original sample
-            - Adjust speed to make speech faster or slower
-            - Use style exaggeration to emphasize the unique characteristics of the voice
+            - Higher similarity boost makes the voice sound more like the original cosmic entity
+            - Adjust speed to alter the cosmic frequency of speech
+            - Use style exaggeration to emphasize the unique cosmic characteristics
             """)
 
     with tab2:
-        st.markdown("Transform your voice into another voice")
+        st.markdown("Transform your mortal voice into a cosmic entity")
         
         # Upload audio
-        st.header("Upload Audio")
+        st.header("Upload Your Voice")
         uploaded_file = st.file_uploader("Upload an audio file (MP3, WAV, M4A)", type=["mp3", "wav", "m4a"])
         
         # Target voice selection
-        st.header("Select Target Voice")
-        target_voice_name = st.selectbox("Voice to convert to", options=list(voice_options.keys()), key="target_voice")
+        st.header("Select Target Cosmic Entity")
+        target_voice_name = st.selectbox("Voice to transform into", options=list(voice_options.keys()), key="target_voice")
         target_voice_id = voice_options[target_voice_name]
         
         # Convert button
-        if st.button("Convert Voice", key="convert_voice"):
+        if st.button("COSMIC TRANSMUTATION", key="convert_voice"):
             if uploaded_file is None:
-                st.warning("Please upload an audio file to convert.")
+                st.warning("Please upload an audio file to transform.")
             else:
-                with st.spinner("Converting voice..."):
+                with st.spinner("Performing cosmic transmutation..."):
                     # Read the uploaded file
                     audio_bytes = uploaded_file.read()
                     
                     # Display original audio
-                    st.subheader("Original Audio")
+                    st.subheader("Original Voice")
                     st.audio(audio_bytes, format=f"audio/{uploaded_file.type.split('/')[1]}")
                     
                     # Convert voice using the specific voice conversion model
@@ -847,11 +1184,11 @@ def main():
                     
                     if converted_audio:
                         # Display converted audio
-                        st.subheader("Converted Audio")
+                        st.subheader("Cosmic Transformation")
                         st.audio(converted_audio, format="audio/mp3")
                         
                         # Display download link
-                        st.markdown(get_audio_download_link(converted_audio, f"converted_{target_voice_name}.mp3"), unsafe_allow_html=True)
+                        st.markdown(get_audio_download_link(converted_audio, f"cosmic_{target_voice_name}.mp3"), unsafe_allow_html=True)
                         
                         # Create a user-specific key for recent conversions
                         user_gen_key = f"recent_generations_{st.session_state.username}"
@@ -861,7 +1198,7 @@ def main():
                             st.session_state[user_gen_key] = []
                             
                         st.session_state[user_gen_key].append({
-                            "text": f"Conversion to {target_voice_name}",
+                            "text": f"Transformation to {target_voice_name}",
                             "voice": target_voice_name,
                             "model": selected_vc_model,
                             "audio_data": converted_audio,
@@ -870,7 +1207,7 @@ def main():
         
         # Recent conversions section
         st.markdown("---")
-        st.header("Recent Conversions")
+        st.header("Transmutation Archives")
         
         # Get user-specific generations for voice conversions
         user_gen_key = f"recent_generations_{st.session_state.username}"
@@ -881,23 +1218,23 @@ def main():
             
             if voice_conversions:
                 for i, gen in enumerate(reversed(voice_conversions[-5:])):  # Show last 5
-                    with st.expander(f"Conversion to {gen['voice']} ({gen.get('model', 'Default Model')})"):
+                    with st.expander(f"Transformation to {gen['voice']} ({gen.get('model', 'Default Engine')})"):
                         st.audio(gen["audio_data"], format="audio/mp3")
-                        st.markdown(get_audio_download_link(gen["audio_data"], f"conversion_{gen['voice']}_{i}.mp3"), unsafe_allow_html=True)
+                        st.markdown(get_audio_download_link(gen["audio_data"], f"cosmic_{gen['voice']}_{i}.mp3"), unsafe_allow_html=True)
             else:
-                st.info("Your recent voice conversions will appear here.")
+                st.info("Your voice transmutations will appear here.")
         else:
-            st.info("Your recent voice conversions will appear here.")
+            st.info("Your voice transmutations will appear here.")
         
         # Tips for voice conversion
-        with st.expander("Tips for better voice conversion"):
+        with st.expander("Cosmic Transmutation Tips"):
             st.markdown("""
-            - For best results, use high-quality audio recordings with clear speech
-            - Keep the audio under 30 seconds for faster processing
+            - For optimal cosmic results, use high-quality audio with clear speech
+            - Keep audio under 30 seconds for faster transmutation
             - Avoid background noise in your input audio
-            - Try different voices to find the best match for your voice type
-            - Adjust stability and similarity boost settings for different effects
-            - Use a consistent speaking pace for more natural-sounding conversions
+            - Try different cosmic entities to find the best match for your voice
+            - Adjust stability and similarity boost for different cosmic effects
+            - Use a consistent speaking pace for more natural-sounding transmutations
             - When recording your voice, speak clearly and at a consistent volume
             - For professional results, record in a quiet environment with minimal echo
             """)
