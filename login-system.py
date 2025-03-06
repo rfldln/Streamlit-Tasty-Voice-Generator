@@ -562,11 +562,16 @@ def main():
             st.session_state.vc_model = list(voice_conversion_model_options.keys())[0] if voice_conversion_model_options else "Default Voice Conversion"
         
         # TTS model selection
+        try:
+            tts_index = list(tts_model_options.keys()).index(st.session_state.tts_model) 
+        except (ValueError, IndexError):
+            tts_index = 0
+            
         selected_tts_model = st.selectbox(
             "Select Text-to-Speech Model", 
             options=list(tts_model_options.keys()),
             key="tts_model_select",
-            index=list(tts_model_options.keys()).index(st.session_state.tts_model) if st.session_state.tts_model in tts_model_options else 0
+            index=tts_index
         )
         st.session_state.tts_model = selected_tts_model
         selected_tts_model_id = tts_model_options[selected_tts_model]
@@ -576,11 +581,16 @@ def main():
         if len(voice_conversion_model_options) > 0:
             st.success(f"Found {len(voice_conversion_model_options)} models that support voice conversion.")
             
+            try:
+                vc_index = list(voice_conversion_model_options.keys()).index(st.session_state.vc_model)
+            except (ValueError, IndexError):
+                vc_index = 0
+                
             selected_vc_model = st.selectbox(
                 "Select Voice Conversion Model", 
                 options=list(voice_conversion_model_options.keys()),
                 key="vc_model_select",
-                index=list(voice_conversion_model_options.keys()).index(st.session_state.vc_model) if st.session_state.vc_model in voice_conversion_model_options else 0
+                index=vc_index
             )
             st.session_state.vc_model = selected_vc_model
             selected_vc_model_id = voice_conversion_model_options[selected_vc_model]
