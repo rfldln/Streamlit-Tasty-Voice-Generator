@@ -128,6 +128,12 @@ def show_login_page():
     # Apply custom CSS for the login page
     st.markdown("""
     <style>
+        /* Dark theme base */
+        .stApp {
+            background-color: #121212;
+            color: #FAFAFA;
+        }
+        
         /* Title styling */
         .login-title {
             font-size: 2rem;
@@ -165,12 +171,13 @@ def show_login_page():
             border-radius: 5px;
             padding: 10px 15px;
             background-color: #262730;
+            color: #FAFAFA;
         }
         
         /* Label styling */
         .stTextInput > label {
             font-weight: 500;
-            color: #424242;
+            color: #BBBBBB;
         }
         
         /* Enhanced button styling with !important flags for all button types */
@@ -377,6 +384,82 @@ def main():
         page_icon="🔊",
         layout="wide"
     )
+    
+    # Add dark theme styling for all users
+    st.markdown("""
+    <style>
+        /* Dark theme background colors */
+        .stApp {
+            background-color: #121212;
+            color: #FAFAFA;
+        }
+        
+        /* Darkening the sidebar */
+        [data-testid="stSidebar"] {
+            background-color: #1E1E1E;
+        }
+        
+        /* Styling for cards, expanders, and other components */
+        .stExpander, div.stButton > button, .stTextInput > div {
+            background-color: #262730;
+            color: #FAFAFA;
+            border-color: #4D4D4D;
+        }
+        
+        /* Input fields background */
+        .stTextInput > div > div > input, .stTextArea > div > div > textarea {
+            background-color: #262730;
+            color: #FAFAFA;
+        }
+        
+        /* Selectbox styling */
+        [data-testid="stSelectbox"] {
+            background-color: #262730;
+            color: #FAFAFA;
+        }
+        
+        /* Make sure text is visible on the dark background */
+        p, h1, h2, h3, h4, h5, h6, .stMarkdown, .stText {
+            color: #FAFAFA !important;
+        }
+        
+        /* Tables styling */
+        .stTable {
+            background-color: #262730;
+        }
+        
+        /* Slider track */
+        .stSlider > div > div > div > div {
+            background-color: #4F4F4F;
+        }
+        
+        /* Audio player styling */
+        audio {
+            background-color: #262730;
+        }
+        
+        /* Table text in dark mode */
+        .stDataFrame td, .stDataFrame th {
+            color: #FAFAFA !important;
+        }
+        
+        /* Header coloring */
+        [data-testid="stHeader"] {
+            background-color: #121212;
+        }
+        
+        /* Dropdown items */
+        ul[role="listbox"] li {
+            background-color: #262730;
+            color: #FAFAFA;
+        }
+        
+        /* Expander content */
+        .stExpander > div[data-baseweb="accordion"] > div {
+            background-color: #262730;
+        }
+    </style>
+    """, unsafe_allow_html=True)
     
     # Check if user is logged in
     if "logged_in" not in st.session_state or not st.session_state.logged_in:
