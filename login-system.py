@@ -173,22 +173,29 @@ def show_login_page():
             color: #424242;
         }
         
-        /* Submit button styling */
+        /* Submit button styling - with !important flags */
         .stButton > button {
-            width: 100%;
-            background-color: #1E88E5;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 10px 0;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.3s;
+            width: 100% !important;
+            background-color: #1E88E5 !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 5px !important;
+            padding: 10px 0 !important;
+            font-weight: 500 !important;
+            cursor: pointer !important;
+            transition: background-color 0.3s !important;
         }
         
         .stButton > button:hover {
-            background-color: #154b82;
-            color: white;
+            background-color: #154b82 !important;
+            color: white !important;
+        }
+        
+        /* More specific selectors for Streamlit buttons */
+        div[data-testid="stForm"] .stButton > button {
+            width: 100% !important;
+            background-color: #1E88E5 !important;
+            color: white !important;
         }
         
         /* Error and success messages */
