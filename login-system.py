@@ -65,7 +65,7 @@ def init_authentication():
         with open(users_file, "wb") as f:
             pickle.dump(users, f)
     except Exception as e:
-        st.warning(f"Could not save users to file: {e}")
+        pass  # Silent fail in cloud environment
     
     return users
 
@@ -122,7 +122,7 @@ def delete_user(username, users, current_user):
     save_users(users)
     return True, f"User '{username}' deleted successfully"
 
-# Authentication UI
+# Login page - enhanced with reliable styling
 def show_login_page():
     """Show the styled login page"""
     # Apply custom CSS for the login page
@@ -142,7 +142,7 @@ def show_login_page():
             text-align: center;
             margin-bottom: 1rem;
         }
-                
+        
         /* Style for the outer container of text inputs when focused */
         .stTextInput > div[data-focused="true"] {
             border-color: #1E88E5 !important;
@@ -173,7 +173,8 @@ def show_login_page():
             color: #424242;
         }
         
-        /* Submit button styling - with !important flags */
+        /* Enhanced button styling with !important flags */
+        div[data-testid="stForm"] .stButton > button,
         .stButton > button {
             width: 100% !important;
             background-color: #1E88E5 !important;
@@ -184,17 +185,14 @@ def show_login_page():
             font-weight: 500 !important;
             cursor: pointer !important;
             transition: background-color 0.3s !important;
+            margin-top: 5px !important;
+            margin-bottom: 5px !important;
         }
         
+        /* Even more specific selector for the button */
+        form[data-testid="stForm"] .stButton > button:first-child,
         .stButton > button:hover {
             background-color: #154b82 !important;
-            color: white !important;
-        }
-        
-        /* More specific selectors for Streamlit buttons */
-        div[data-testid="stForm"] .stButton > button {
-            width: 100% !important;
-            background-color: #1E88E5 !important;
             color: white !important;
         }
         
@@ -249,29 +247,44 @@ def show_login_page():
         # Title
         st.markdown('<h1 class="login-title">Tasty Voice Generator</h1>', unsafe_allow_html=True)
         
-        # Login form
-        with st.form("login_form"):
-            username = st.text_input("Username")
-            password = st.text_input("Password", type="password")
-            submit = st.form_submit_button("Sign In")
-            
-            if submit:
-                if login_user(username, password, st.session_state.users):
-                    st.session_state.logged_in = True
-                    st.session_state.username = username
-                    st.session_state.is_admin = st.session_state.users[username]["is_admin"]
-                    st.success("Login successful! Redirecting...")
-                    time.sleep(1)  # Short delay for better UX
-                    st.rerun()
-                else:
-                    st.error("Invalid username or password")
+        # HTML-based Login form for consistent styling
+        username = st.text_input("Username")
+        password = st.text_input("Password", type="password")
+        
+        # Custom submit button with inline HTML for more reliable styling
+        submitted = st.markdown("""
+        <form>
+            <button type="submit" 
+                style="
+                    width: 100%; 
+                    background-color: #1E88E5; 
+                    color: white; 
+                    border: none; 
+                    border-radius: 5px; 
+                    padding: 10px 0; 
+                    font-weight: 500; 
+                    cursor: pointer;
+                    margin-top: 10px;">
+                Sign In
+            </button>
+        </form>
+        """, unsafe_allow_html=True)
+        
+        # Check if the button was clicked
+        if st.button("Sign In", key="login_button", use_container_width=True):
+            if login_user(username, password, st.session_state.users):
+                st.session_state.logged_in = True
+                st.session_state.username = username
+                st.session_state.is_admin = st.session_state.users[username]["is_admin"]
+                st.success("Login successful! Redirecting...")
+                time.sleep(1)  # Short delay for better UX
+                st.rerun()
+            else:
+                st.error("Invalid username or password")
         
         # Footer
         st.markdown('<div class="footer">© 2025 Tasty Voice Generator</div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)  # Close the centered content
-    
-    # Link to registration (only if we want to allow self-registration, which is not the case here)
-    # st.markdown("Don't have an account? Contact an administrator.")
 
 def show_admin_panel():
     """Show the admin panel for user management"""
