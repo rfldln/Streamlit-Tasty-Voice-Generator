@@ -562,8 +562,8 @@ def main():
         }
         
         voice_conversion_model_options = {
-            "English Conversion Model": "eleven_english_sts_v2",
-            "Multilingual Voice Conversion": "eleven_multilingual_sts_v2"
+            "Multilingual Voice Conversion": "eleven_multilingual_sts_v2",
+            "English Conversion Model": "eleven_english_sts_v2"
         }
         
         # Store both model selections in session state
