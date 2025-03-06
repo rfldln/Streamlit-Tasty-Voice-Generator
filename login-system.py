@@ -20,6 +20,415 @@ try:
 except ImportError:
     pass
 
+# User authentication functions - adapted for cloud
+def init_authentication():
+    """Initialize the authentication system"""
+    # Check if we have existing session state users
+    if "users_dict" in st.session_state:
+        return st.session_state.users_dict
+    
+    # Create data directory if it doesn't exist (for local development)
+    data_dir = Path("data")
+    data_dir.mkdir(exist_ok=True)
+    
+    # Create users file if it doesn't exist
+    users_file = data_dir / "users.pkl"
+    
+    # Default admin credentials - in production, use more secure methods
+    default_username = "admin"
+    # Use environment variable for admin password if available
+    default_password = os.environ.get("ADMIN_PASSWORD", "admin123")
+    
+    if users_file.exists():
+        try:
+            # Try to load from file first
+            with open(users_file, "rb") as f:
+                users = pickle.load(f)
+                st.session_state.users_dict = users
+                return users
+        except Exception as e:
+            st.warning(f"Could not load users from file: {e}")
+            # Fall back to default user
+    
+    # Create default admin user
+    admin_user = {
+        "username": default_username,
+        "password_hash": hash_password(default_password),
+        "is_admin": True,
+        "created_at": time.time()
+    }
+    users = {default_username: admin_user}
+    st.session_state.users_dict = users
+    
+    # Try to save locally for development (might fail in cloud)
+    try:
+        with open(users_file, "wb") as f:
+            pickle.dump(users, f)
+    except Exception as e:
+        pass  # Silent fail in cloud environment
+    
+    return users
+
+def hash_password(password):
+    """Create a SHA-256 hash of the password"""
+    return hashlib.sha256(password.encode()).hexdigest()
+
+def verify_password(stored_hash, provided_password):
+    """Verify that the provided password matches the stored hash"""
+    return stored_hash == hash_password(provided_password)
+
+def save_users(users):
+    """Save the users dictionary to session state and try to save to disk"""
+    st.session_state.users_dict = users
+    # Try to save locally for development (might fail in cloud)
+    try:
+        with open(Path("data") / "users.pkl", "wb") as f:
+            pickle.dump(users, f)
+    except Exception:
+        pass  # Silent fail in cloud environment
+
+def login_user(username, password, users):
+    """Attempt to log in a user"""
+    if username in users and verify_password(users[username]["password_hash"], password):
+        return True
+    return False
+
+def create_user(username, password, is_admin, users):
+    """Create a new user"""
+    if username in users:
+        return False, "Username already exists"
+    
+    users[username] = {
+        "username": username,
+        "password_hash": hash_password(password),
+        "is_admin": is_admin,
+        "created_at": time.time()
+    }
+    save_users(users)
+    return True, "User created successfully"
+
+def delete_user(username, users, current_user):
+    """Delete a user"""
+    # Don't allow deleting your own account
+    if username == current_user:
+        return False, "You cannot delete your own account"
+    
+    # Check if user exists
+    if username not in users:
+        return False, "User doesn't exist"
+    
+    # Delete the user
+    del users[username]
+    save_users(users)
+    return True, f"User '{username}' deleted successfully"
+
+# Login page - enhanced with more aggressive styling
+def show_login_page():
+    """Show the styled login page with more robust CSS"""
+    # Apply universal CSS at the beginning of the app
+    st.markdown("""
+    <style>
+        /* Reset some basic elements */
+        * {
+            box-sizing: border-box;
+        }
+        
+        /* Title styling */
+        .login-title {
+            font-size: 2rem !important;
+            font-weight: 600 !important;
+            text-align: center !important;
+            margin-bottom: 1rem !important;
+            color: #1E88E5 !important;
+        }
+        
+        /* Logo styling */
+        .logo-container {
+            text-align: center !important;
+            margin-bottom: 1rem !important;
+        }
+        
+        /* More aggressive styling for input fields with multiple selectors */
+        .stTextInput input,
+        [data-baseweb="input"] input,
+        .css-1n76uvr input,
+        input[type="text"],
+        input[type="password"] {
+            border-radius: 5px !important;
+            padding: 10px 15px !important;
+            background-color: #262730 !important;
+            width: 100% !important;
+        }
+        
+        /* Targeted focus states */
+        .stTextInput [data-baseweb="input"]:focus-within,
+        .stTextInput div[data-focused="true"],
+        [data-baseweb="input"]:focus-within {
+            border-color: #1E88E5 !important;
+            box-shadow: 0 0 0 1px #1E88E5 !important;
+        }
+        
+        /* Additional targeting to override focus styling */
+        .stTextInput div[data-focused="true"] > div,
+        [data-baseweb="input"]:focus-within > div {
+            border-color: #1E88E5 !important;
+            box-shadow: none !important;
+        }
+        
+        /* Default border color */
+        .stTextInput div,
+        [data-baseweb="input"] div {
+            border-color: transparent !important;
+        }
+        
+        /* Label styling with !important */
+        .stTextInput > label,
+        [data-baseweb="input"] + label {
+            font-weight: 500 !important;
+            color: #424242 !important;
+        }
+        
+        /* Ultra aggressive button styling to override all Streamlit defaults */
+        div[data-testid="stForm"] .stButton > button,
+        .stButton > button,
+        button[kind="primaryFormSubmit"],
+        [data-testid="stFormSubmitButton"] > button,
+        form [data-testid="stFormSubmitButton"] button,
+        button.css-1x8cf1d,
+        button.css-7ym5gk,
+        button.css-13q3t3r,
+        button.css-1vgnxcy {
+            width: 100% !important;
+            background-color: #1E88E5 !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 5px !important;
+            padding: 10px 0 !important;
+            font-weight: 500 !important;
+            cursor: pointer !important;
+            transition: background-color 0.3s !important;
+            margin-top: 5px !important;
+            margin-bottom: 5px !important;
+            display: block !important;
+            text-align: center !important;
+            box-shadow: none !important;
+        }
+        
+        /* Hover styles for all buttons with ultra-specific selectors */
+        .stButton > button:hover,
+        button[kind="primaryFormSubmit"]:hover,
+        [data-testid="stFormSubmitButton"] > button:hover,
+        button.css-1x8cf1d:hover,
+        button.css-7ym5gk:hover,
+        button.css-13q3t3r:hover,
+        button.css-1vgnxcy:hover {
+            background-color: #154b82 !important;
+            color: white !important;
+            border: none !important;
+        }
+        
+        /* Error and success messages */
+        .stAlert {
+            text-align: center !important;
+            border-radius: 5px !important;
+            margin-top: 1.5rem !important;
+        }
+        
+        /* Footer styling */
+        .footer {
+            text-align: center !important;
+            margin-top: 2.5rem !important;
+            font-size: 0.8rem !important;
+            color: #757575 !important;
+        }
+        
+        /* Hide default streamlit elements */
+        #MainMenu {visibility: hidden !important;}
+        footer {visibility: hidden !important;}
+        
+        /* Center the login form vertically */
+        .centered-content {
+            margin-top: 10vh !important;
+        }
+        
+        /* Ensure form widgets display properly */
+        .stForm > div {
+            width: 100% !important;
+        }
+        
+        /* Cursor pointer for selectable items */
+        div[data-baseweb="select"],
+        div[data-baseweb="select"] > div,
+        li[role="option"] {
+            cursor: pointer !important;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    # Initialize users
+    if "users" not in st.session_state:
+        st.session_state.users = init_authentication()
+    
+    # Create a more compact centered layout
+    col1, col2, col3 = st.columns([2, 1, 2])
+    
+    with col2:
+        st.markdown('<div class="centered-content">', unsafe_allow_html=True)
+        
+        # Logo (you can replace with an actual logo)
+        st.markdown('''
+        <div class="logo-container">
+            <svg width="70" height="70" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" stroke="#1E88E5" stroke-width="2"/>
+                <path d="M8 12C8 10.8954 8.89543 10 10 10H14C15.1046 10 16 10.8954 16 12V16C16 17.1046 15.1046 18 14 18H10C8.89543 18 8 17.1046 8 16V12Z" fill="#1E88E5"/>
+                <path d="M10 7L14 7" stroke="#1E88E5" stroke-width="2" stroke-linecap="round"/>
+                <path d="M12 10V7" stroke="#1E88E5" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+        </div>
+        ''', unsafe_allow_html=True)
+        
+        # Title
+        st.markdown('<h1 class="login-title">Tasty Voice Generator</h1>', unsafe_allow_html=True)
+
+        # Use a form for Enter key functionality with styled button
+        with st.form("login_form", clear_on_submit=False):
+            username = st.text_input("Username")
+            password = st.text_input("Password", type="password")
+            
+            # Additional inline CSS specifically for the form submit button
+            st.markdown("""
+            <style>
+            /* Additional specific styling for THIS form's submit button */
+            form[data-testid="stForm"] [data-testid="stFormSubmitButton"] > button {
+                background-color: #1E88E5 !important;
+                color: white !important;
+                border: none !important;
+                border-radius: 5px !important;
+                padding: 10px 0 !important;
+                font-weight: 500 !important;
+                width: 100% !important;
+                display: block !important;
+            }
+            </style>
+            """, unsafe_allow_html=True)
+            
+            submit_button = st.form_submit_button("Sign In", use_container_width=True)
+            
+            if submit_button:
+                if login_user(username, password, st.session_state.users):
+                    st.session_state.logged_in = True
+                    st.session_state.username = username
+                    st.session_state.is_admin = st.session_state.users[username]["is_admin"]
+                    st.success("Login successful! Redirecting...")
+                    time.sleep(1)  # Short delay for better UX
+                    st.rerun()
+                else:
+                    st.error("Invalid username or password")
+        
+        # Footer
+        st.markdown('<div class="footer">© 2025 Tasty Voice Generator</div>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)  # Close the centered content
+
+def show_admin_panel():
+    """Show the admin panel for user management"""
+    st.title("Admin Panel - User Management")
+    
+    # Additional CSS for admin panel
+    st.markdown("""
+    <style>
+        /* Admin panel specific styles */
+        .admin-header {
+            color: #1E88E5 !important;
+            margin-bottom: 1rem !important;
+        }
+        
+        /* Table styling */
+        .stTable {
+            border-collapse: collapse !important;
+        }
+        
+        .stTable th {
+            background-color: #f5f5f5 !important;
+            font-weight: 600 !important;
+        }
+        
+        .stTable td, .stTable th {
+            padding: 8px 12px !important;
+            border: 1px solid #e0e0e0 !important;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    # Go back to main app
+    if st.button("Return to Voice Generator"):
+        st.session_state.show_admin = False
+        st.rerun()
+    
+    st.header("Create New User")
+    with st.form("create_user_form"):
+        new_username = st.text_input("Username")
+        new_password = st.text_input("Password", type="password")
+        confirm_password = st.text_input("Confirm Password", type="password")
+        is_admin = st.checkbox("Is Admin")
+        create_button = st.form_submit_button("Create User")
+        
+        if create_button:
+            if new_password != confirm_password:
+                st.error("Passwords do not match")
+            elif not new_username or not new_password:
+                st.error("Username and password are required")
+            else:
+                success, message = create_user(
+                    new_username, new_password, is_admin, st.session_state.users
+                )
+                if success:
+                    st.success(message)
+                else:
+                    st.error(message)
+    
+    # Show existing users
+    st.header("Existing Users")
+    users_df = []
+    for username, user in st.session_state.users.items():
+        users_df.append({
+            "Username": username,
+            "Admin": "Yes" if user["is_admin"] else "No",
+            "Created": time.strftime("%Y-%m-%d", time.localtime(user["created_at"]))
+        })
+    
+    st.table(users_df)
+    
+    # Delete user section
+    st.header("Delete User")
+    
+    # Exclude current user from the deletion options
+    delete_options = [username for username in st.session_state.users.keys() 
+                      if username != st.session_state.username]
+    
+    if not delete_options:
+        st.info("No other users to delete.")
+    else:
+        with st.form("delete_user_form"):
+            user_to_delete = st.selectbox("Select User to Delete", options=delete_options)
+            delete_button = st.form_submit_button("Delete User")
+            
+            if delete_button:
+                success, message = delete_user(
+                    user_to_delete, st.session_state.users, st.session_state.username
+                )
+                if success:
+                    st.success(message)
+                    
+                    # Clean up any user-specific data in session state
+                    user_gen_key = f"recent_generations_{user_to_delete}"
+                    if user_gen_key in st.session_state:
+                        del st.session_state[user_gen_key]
+                    
+                    # Refresh the page after successful deletion
+                    st.rerun()
+                else:
+                    st.error(message)
+
 # Main function to run the Streamlit app
 def main():
     # Set page config
@@ -351,6 +760,19 @@ def main():
                 st.info("Your recent text-to-speech generations will appear here.")
         else:
             st.info("Your recent voice generations will appear here.")
+
+        # Tips for text-to-speech
+        with st.expander("Tips for better text-to-speech"):
+            st.markdown("""
+            - For more natural sounding speech, include punctuation in your text
+            - Use commas and periods to control pacing
+            - Add question marks for rising intonation
+            - Try different stability and similarity boost settings for different effects
+            - Higher stability makes the voice more consistent but less expressive
+            - Higher similarity boost makes the voice sound more like the original sample
+            - Adjust speed to make speech faster or slower
+            - Use style exaggeration to emphasize the unique characteristics of the voice
+            """)
 
     with tab2:
         st.markdown("Transform your voice into another voice")
