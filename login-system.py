@@ -355,7 +355,7 @@ def show_login_page():
                     st.session_state.logged_in = True
                     st.session_state.username = username
                     st.session_state.is_admin = st.session_state.users[username]["is_admin"]
-                    st.success("Login successful! Preparing your journey...")
+                    st.success("Login successful! Redirecting...")
                     time.sleep(1)  # Short delay for better UX
                     st.rerun()
                 else:
@@ -1060,7 +1060,7 @@ def main():
     tab1, tab2 = st.tabs(["Text to Voice", "Voice Changer"])
     
     with tab1:
-        st.markdown("Generate otherworldly AI voices from your text")
+        st.markdown("Generate realistic AI voices based on our models")
         
         # Text input area
         st.header("Enter Your Message")
