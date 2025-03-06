@@ -429,6 +429,186 @@ def show_admin_panel():
                 else:
                     st.error(message)
 
+# Function to get available voices
+@st.cache_data(ttl=3600)  # Cache for one hour
+def get_voices(api_key):
+    url = "https://api.elevenlabs.io/v1/voices"
+    headers = {
+        "Accept": "application/json",
+        "xi-api-key": api_key
+    }
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        voices_data = response.json()
+        # Store voices data in session state for access by other functions
+        st.session_state.voices_data = voices_data
+        return voices_data
+    except requests.exceptions.RequestException as e:
+        st.error(f"Error fetching voices: {str(e)}")
+        return {"voices": []}
+
+# Function to generate voice
+def generate_voice(api_key, voice_id, text, model_id, voice_settings):
+    url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
+    
+    headers = {
+        "Accept": "audio/mpeg",
+        "Content-Type": "application/json",
+        "xi-api-key": api_key
+    }
+    
+    data = {
+        "text": text,
+        "model_id": model_id,
+        "voice_settings": voice_settings
+    }
+    
+    try:
+        response = requests.post(url, json=data, headers=headers)
+        response.raise_for_status()
+        return response.content
+    except requests.exceptions.RequestException as e:
+        st.error(f"Error generating voice: {str(e)}")
+        if hasattr(e, 'response') and e.response is not None:
+            st.error(f"API response: {e.response.text}")
+        return None
+
+# Function to clone a voice
+def clone_voice(api_key, name, description, audio_files):
+    """
+    Clone a voice using the ElevenLabs Voice Cloning API
+    
+    Parameters:
+    api_key (str): ElevenLabs API key
+    name (str): Name for the cloned voice
+    description (str): Description of the cloned voice
+    audio_files (list): List of audio file bytes data
+    
+    Returns:
+    str or None: voice_id if successful, None if failed
+    """
+    url = "https://api.elevenlabs.io/v1/voices/add"
+    
+    headers = {
+        "Accept": "application/json",
+        "xi-api-key": api_key
+    }
+    
+    # Create a multipart form with all required fields
+    files = []
+    
+    # Add audio files to the request
+    for i, audio_data in enumerate(audio_files):
+        files.append(
+            ('files', (f'sample_{i}.mp3', audio_data, 'audio/mpeg'))
+        )
+    
+    # Add name and description
+    data = {
+        'name': name,
+        'description': description,
+    }
+    
+    try:
+        response = requests.post(url, headers=headers, data=data, files=files)
+        response.raise_for_status()
+        return response.json().get('voice_id')
+    except requests.exceptions.RequestException as e:
+        st.error(f"Error cloning voice: {str(e)}")
+        if hasattr(e, 'response') and e.response is not None:
+            st.error(f"API response: {e.response.text}")
+        return None
+
+# Function to create download link with enhanced styling
+def get_audio_download_link(audio_data, filename="generated_voice.mp3"):
+    b64 = base64.b64encode(audio_data).decode()
+    href = f'<a href="data:audio/mpeg;base64,{b64}" download="{filename}">Download MP3</a>'
+    return href
+
+# Function to add voice cloning section to the app
+def add_voice_cloning_section():
+    """Add a section for voice cloning functionality"""
+    
+    st.header("Voice Cloning")
+    st.markdown("Upload audio samples to clone a voice")
+    
+    with st.form("voice_cloning_form"):
+        # Voice name and description
+        voice_name = st.text_input("Voice Name", placeholder="My Cloned Voice")
+        voice_description = st.text_area("Voice Description", placeholder="Description of the cloned voice", height=100)
+        
+        # Audio file upload - multiple files allowed
+        uploaded_files = st.file_uploader(
+            "Upload Audio Samples (MP3, WAV, FLAC, M4A)", 
+            type=["mp3", "wav", "flac", "m4a"], 
+            accept_multiple_files=True
+        )
+        
+        # Form submission button
+        clone_submitted = st.form_submit_button("Clone Voice")
+        
+        if clone_submitted:
+            if not voice_name:
+                st.error("Please provide a name for the cloned voice.")
+            elif not uploaded_files or len(uploaded_files) < 1:
+                st.error("Please upload at least 1 audio sample. For better results, upload 3 or more samples.")
+            else:
+                with st.spinner("Cloning voice... This may take a minute or two."):
+                    # Read audio file bytes
+                    audio_files = [file.read() for file in uploaded_files]
+                    
+                    # Clone the voice
+                    new_voice_id = clone_voice(api_key, voice_name, voice_description, audio_files)
+                    
+                    if new_voice_id:
+                        st.success(f"Voice cloned successfully! Voice ID: {new_voice_id}")
+                        st.info("Refresh the page to see your new voice in the Voice selection dropdown.")
+                        
+                        # Force refresh voice list in cache
+                        get_voices.clear()
+                        
+                        # Add cloned voice to the list of voices
+                        if "voices_data" in st.session_state:
+                            # Create a new voice entry
+                            new_voice = {
+                                "voice_id": new_voice_id,
+                                "name": voice_name,
+                                "description": voice_description,
+                                "preview_url": None  # No preview available for newly cloned voices
+                            }
+                            
+                            # Add to voices data
+                            st.session_state.voices_data["voices"].append(new_voice)
+                    else:
+                        st.error("Failed to clone voice. Please try again.")
+    
+    # Add information about voice cloning best practices
+    with st.expander("Voice Cloning Best Practices"):
+        st.markdown("""
+        ### Tips for Better Voice Cloning Results
+        
+        1. **Audio Quality**:
+           - Use high-quality recordings with minimal background noise
+           - Record in a quiet environment
+           - Use a good microphone if possible
+        
+        2. **Sample Content**:
+           - Provide diverse speech samples (different emotions, pacing, etc.)
+           - Samples should be clear speech without music or other voices
+           - Total duration of 1-3 minutes across all samples is ideal
+        
+        3. **File Format**:
+           - MP3, WAV, FLAC, or M4A files
+           - 16-bit PCM or higher
+           - 44.1kHz sample rate or higher
+        
+        4. **Content Guidelines**:
+           - Ensure you have the right to use the voice samples
+           - Don't use copyrighted content without permission
+           - Respect privacy and get consent when cloning someone's voice
+        """)
+
 # Main function to run the Streamlit app
 def main():
     # Set page config
@@ -547,68 +727,20 @@ def main():
         
         st.header("Voice Settings")
         stability = st.slider("Stability", min_value=0.0, max_value=1.0, value=0.5, step=0.01,
-                            help="The voice will sound more consistent among re-generations if stability is increased, but it may also sound a little monotonous.  We advise reducing this value for lengthy text passages.")
+                            help="The voice will sound more consistent among re-generations if stability is increased, but it may also sound a little monotonous. We advise reducing this value for lengthy text passages.")
         
         similarity_boost = st.slider("Similarity Boost", min_value=0.0, max_value=1.0, value=0.75, step=0.01,
-                                    help="High enhancement improves target speaker resemblance and overall voice clarity.  It is advised to change this option to find the ideal value because very high values may result in artifacts.")
+                                    help="High enhancement improves target speaker resemblance and overall voice clarity. It is advised to change this option to find the ideal value because very high values may result in artifacts.")
         
         # Speed setting
         speed = st.slider("Speed", min_value=0.7, max_value=1.2, value=1.0, step=0.05,
-                        help="regulates the generated speech's pace.  Speech will be slower with values below 1.0 and faster with values above 1.0.  Extreme values could have an impact on the resulting speech's quality.")
+                        help="regulates the generated speech's pace. Speech will be slower with values below 1.0 and faster with values above 1.0. Extreme values could have an impact on the resulting speech's quality.")
         
         style_exaggeration = st.slider("Style Exaggeration", min_value=0.0, max_value=1.0, value=0.0, step=0.01,
                                     help="High values are recommended if the style of the speech should be exaggerated compared to the uploaded audio. Higher values can lead to more instability in the generated speech. Setting this to 0.0 will greatly increase generation speed and is the default setting.")
         
         st.markdown("---")
         st.markdown("Made with ❤️ by raffyboi")
-
-    # Function to get available voices
-    @st.cache_data(ttl=3600)  # Cache for one hour
-    def get_voices(api_key):
-        url = "https://api.elevenlabs.io/v1/voices"
-        headers = {
-            "Accept": "application/json",
-            "xi-api-key": api_key
-        }
-        try:
-            response = requests.get(url, headers=headers)
-            response.raise_for_status()
-            return response.json()
-        except requests.exceptions.RequestException as e:
-            st.error(f"Error fetching voices: {str(e)}")
-            return {"voices": []}
-
-    # Function to generate voice
-    def generate_voice(api_key, voice_id, text, model_id, voice_settings):
-        url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
-        
-        headers = {
-            "Accept": "audio/mpeg",
-            "Content-Type": "application/json",
-            "xi-api-key": api_key
-        }
-        
-        data = {
-            "text": text,
-            "model_id": model_id,
-            "voice_settings": voice_settings
-        }
-        
-        try:
-            response = requests.post(url, json=data, headers=headers)
-            response.raise_for_status()
-            return response.content
-        except requests.exceptions.RequestException as e:
-            st.error(f"Error generating voice: {str(e)}")
-            if hasattr(e, 'response') and e.response is not None:
-                st.error(f"API response: {e.response.text}")
-            return None
-
-    # Function to create download link with enhanced styling
-    def get_audio_download_link(audio_data, filename="generated_voice.mp3"):
-        b64 = base64.b64encode(audio_data).decode()
-        href = f'<a href="data:audio/mpeg;base64,{b64}" download="{filename}">Download MP3</a>'
-        return href
 
     # Check if API key is valid
     if not api_key:
@@ -627,6 +759,12 @@ def main():
     # App title and description
     st.title("Tasty Voice Generator")
     st.markdown("Generate realistic AI voices of our models")
+
+    # Add the voice cloning section
+    add_voice_cloning_section()
+    
+    # Add separator
+    st.markdown("---")
 
     # Text input area
     st.header("Enter Text to Convert")
