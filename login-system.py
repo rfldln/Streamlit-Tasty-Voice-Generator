@@ -183,7 +183,7 @@ def show_login_page():
         font-size: 2.2rem !important;
         font-weight: 600 !important;
         text-align: center !important;
-        margin-bottom: 1.5rem !important;
+        margin-bottom: 1rem !important;
         color: #aa80ff !important;
         text-shadow: 0 0 15px rgba(170, 128, 255, 0.6) !important;
     }
