@@ -440,10 +440,7 @@ def get_voices(api_key):
     try:
         response = requests.get(url, headers=headers)
         response.raise_for_status()
-        voices_data = response.json()
-        # Store voices data in session state for access by other functions
-        st.session_state.voices_data = voices_data
-        return voices_data
+        return response.json()
     except requests.exceptions.RequestException as e:
         st.error(f"Error fetching voices: {str(e)}")
         return {"voices": []}
@@ -474,20 +471,10 @@ def generate_voice(api_key, voice_id, text, model_id, voice_settings):
             st.error(f"API response: {e.response.text}")
         return None
 
-# Function for voice-to-voice transformation using ElevenLabs Speech-to-Speech API
+# Function for voice to voice (speech to speech) conversion
 def speech_to_speech(api_key, audio_data, voice_id, model_id, voice_settings=None):
     """
     Convert speech from uploaded audio to a different voice using ElevenLabs Speech-to-Speech API.
-    
-    Parameters:
-    api_key (str): ElevenLabs API key
-    audio_data (bytes): Audio file bytes
-    voice_id (str): Target voice ID
-    model_id (str): Model ID to use
-    voice_settings (dict, optional): Voice settings to use
-    
-    Returns:
-    bytes or None: Converted audio bytes if successful, None if failed
     """
     url = f"https://api.elevenlabs.io/v1/speech-to-speech/{voice_id}"
     
@@ -530,146 +517,6 @@ def get_audio_download_link(audio_data, filename="generated_voice.mp3"):
     b64 = base64.b64encode(audio_data).decode()
     href = f'<a href="data:audio/mpeg;base64,{b64}" download="{filename}">Download MP3</a>'
     return href
-
-# Add voice changer section to the app
-def add_voice_changer_section():
-    """Add a section for voice changer functionality"""
-    
-    st.header("Voice to Voice Converter")
-    st.markdown("Upload your voice recording and transform it into another voice")
-    
-    # Get available voices
-    if "voices_data" in st.session_state:
-        voices_data = st.session_state.voices_data
-        voice_options = {voice["name"]: voice["voice_id"] for voice in voices_data["voices"]}
-        
-        # Select target voice
-        selected_target_voice = st.selectbox(
-            "Select Target Voice", 
-            options=list(voice_options.keys()),
-            key="target_voice_s2s"
-        )
-        selected_target_voice_id = voice_options[selected_target_voice]
-        
-        # Select model
-        model_options = {
-            "Multilingual v2 (Enhanced)": "eleven_multilingual_v2",
-            "Monolingual v1 (English only)": "eleven_monolingual_v1",
-            "Multilingual v1 (Multiple languages)": "eleven_multilingual_v1"
-        }
-        selected_model = st.selectbox(
-            "Select Model", 
-            options=list(model_options.keys()),
-            key="model_s2s"
-        )
-        selected_model_id = model_options[selected_model]
-        
-        # Voice settings
-        with st.expander("Voice Settings"):
-            stability = st.slider("Stability", min_value=0.0, max_value=1.0, value=0.5, step=0.01,
-                                key="stability_s2s",
-                                help="Higher values make voice more consistent but less expressive")
-            
-            similarity_boost = st.slider("Similarity Boost", min_value=0.0, max_value=1.0, value=0.75, step=0.01,
-                                        key="similarity_s2s",
-                                        help="Higher values make voice sound more like the target voice")
-            
-            style = st.slider("Style Exaggeration", min_value=0.0, max_value=1.0, value=0.0, step=0.01,
-                            key="style_s2s",
-                            help="Higher values exaggerate the style of the target voice")
-            
-            speed = st.slider("Speed", min_value=0.7, max_value=1.2, value=1.0, step=0.05,
-                            key="speed_s2s",
-                            help="Adjust speed of output voice")
-        
-        # Create voice settings dictionary
-        voice_settings = {
-            "stability": stability,
-            "similarity_boost": similarity_boost,
-            "style": style,
-            "speaker_boost": True,
-            "speed": speed
-        }
-        
-        # Upload audio file
-        uploaded_file = st.file_uploader(
-            "Upload your voice recording (MP3, WAV, M4A)", 
-            type=["mp3", "wav", "m4a"],
-            key="uploaded_file_s2s"
-        )
-        
-        # Process button
-        if st.button("Transform Voice", key="transform_s2s"):
-            if not uploaded_file:
-                st.warning("Please upload an audio file of your voice.")
-            else:
-                with st.spinner("Transforming voice... This may take a moment."):
-                    # Read uploaded file
-                    audio_data = uploaded_file.read()
-                    
-                    # Convert speech to target voice
-                    transformed_audio = speech_to_speech(
-                        api_key, 
-                        audio_data, 
-                        selected_target_voice_id, 
-                        selected_model_id,
-                        voice_settings
-                    )
-                    
-                    if transformed_audio:
-                        # Display original audio
-                        st.subheader("Original Voice")
-                        st.audio(audio_data, format="audio/mp3")
-                        
-                        # Display transformed audio
-                        st.subheader(f"Transformed Voice ({selected_target_voice})")
-                        st.audio(transformed_audio, format="audio/mp3")
-                        
-                        # Display download link
-                        st.markdown(get_audio_download_link(
-                            transformed_audio, 
-                            f"transformed_voice_{selected_target_voice}.mp3"
-                        ), unsafe_allow_html=True)
-                        
-                        # Save to recent generations
-                        user_gen_key = f"voice_transformations_{st.session_state.username}"
-                        if user_gen_key not in st.session_state:
-                            st.session_state[user_gen_key] = []
-                        
-                        st.session_state[user_gen_key].append({
-                            "original_audio": audio_data,
-                            "transformed_audio": transformed_audio,
-                            "target_voice": selected_target_voice,
-                            "model": selected_model
-                        })
-                    else:
-                        st.error("Failed to transform voice. Please try again with a different audio file or voice model.")
-    
-    # Add information about voice changing
-    with st.expander("Voice Changing Tips"):
-        st.markdown("""
-        ### Tips for Better Voice Transformation Results
-        
-        1. **Audio Quality**:
-           - Use high-quality recordings with minimal background noise
-           - Record in a quiet environment with a good microphone
-           - Speak clearly and at a consistent volume
-        
-        2. **File Types**:
-           - MP3, WAV, or M4A files work best
-           - Higher quality audio files produce better results
-        
-        3. **Content Guidelines**:
-           - Speak naturally and clearly in your recording
-           - Short to medium-length samples (30 seconds to 2 minutes) work best
-           - Avoid music or other voices in your recording
-           
-        4. **Voice Settings**:
-           - Adjust stability for more consistency (higher) or expressiveness (lower)
-           - Use similarity boost to make the output sound more like the target voice
-           - Experiment with style exaggeration to emphasize characteristics of the target voice
-           - Adjust speed to make the output voice faster or slower
-        """)
 
 # Main function to run the Streamlit app
 def main():
@@ -836,7 +683,7 @@ def main():
     st.markdown("Generate realistic AI voices and transform your own voice")
 
     # Create tabs for text-to-speech and voice changer
-    tts_tab, vc_tab = st.tabs(["Text to Speech", "Voice Changer"])
+    tts_tab, vc_tab = st.tabs(["Text to Speech", "Voice to Voice"])
     
     with tts_tab:
         # Text input area
@@ -892,8 +739,127 @@ def main():
                         })
     
     with vc_tab:
-        # Add the voice changer section
-        add_voice_changer_section()
+        # Voice to Voice tab content
+        st.header("Voice to Voice Converter")
+        st.markdown("Upload your voice recording and transform it into another voice")
+        
+        # Voice selection
+        v2v_voice = st.selectbox("Select Target Voice", options=list(voice_options.keys()), key="v2v_voice")
+        v2v_voice_id = voice_options[v2v_voice]
+        
+        # Model selection
+        v2v_model_options = {
+            "Multilingual v2 (Enhanced)": "eleven_multilingual_v2",
+            "Monolingual v1 (English only)": "eleven_monolingual_v1",
+            "Multilingual v1 (Multiple languages)": "eleven_multilingual_v1"
+        }
+        v2v_model = st.selectbox("Select Model", options=list(v2v_model_options.keys()), key="v2v_model")
+        v2v_model_id = v2v_model_options[v2v_model]
+        
+        # Voice settings
+        st.subheader("Voice Settings")
+        col1, col2 = st.columns(2)
+        with col1:
+            v2v_stability = st.slider("Stability", 0.0, 1.0, 0.5, 0.01, key="v2v_stability", 
+                                     help="Higher values make voice more consistent but less expressive")
+            v2v_similarity = st.slider("Similarity Boost", 0.0, 1.0, 0.75, 0.01, key="v2v_similarity",
+                                      help="Higher values make voice sound more like the target voice")
+        with col2:
+            v2v_style = st.slider("Style", 0.0, 1.0, 0.0, 0.01, key="v2v_style",
+                                help="Higher values exaggerate the style of the target voice")
+            v2v_speed = st.slider("Speed", 0.7, 1.3, 1.0, 0.05, key="v2v_speed",
+                                help="Adjust speed of output voice")
+        
+        v2v_settings = {
+            "stability": v2v_stability,
+            "similarity_boost": v2v_similarity,
+            "style": v2v_style,
+            "speaker_boost": True,
+            "speed": v2v_speed
+        }
+        
+        # File upload
+        st.subheader("Upload Your Voice")
+        uploaded_file = st.file_uploader("Choose an audio file (MP3, WAV, M4A)", 
+                                        type=["mp3", "wav", "m4a"])
+        
+        # Transform button
+        if st.button("Transform Voice", key="v2v_transform"):
+            if uploaded_file is None:
+                st.warning("Please upload an audio file first.")
+            else:
+                with st.spinner("Transforming your voice..."):
+                    # Read the audio file
+                    audio_data = uploaded_file.read()
+                    
+                    # Transform voice
+                    transformed_audio = speech_to_speech(
+                        api_key,
+                        audio_data,
+                        v2v_voice_id,
+                        v2v_model_id,
+                        v2v_settings
+                    )
+                    
+                    if transformed_audio:
+                        # Display results
+                        st.success("Voice transformation complete!")
+                        
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            st.subheader("Original Voice")
+                            st.audio(audio_data, format="audio/mp3")
+                        
+                        with col2:
+                            st.subheader(f"Transformed Voice ({v2v_voice})")
+                            st.audio(transformed_audio, format="audio/mp3")
+                            
+                            # Download link
+                            st.markdown(get_audio_download_link(
+                                transformed_audio, 
+                                f"transformed_voice_{v2v_voice}.mp3"
+                            ), unsafe_allow_html=True)
+                        
+                        # Save to recent transformations
+                        user_transform_key = f"voice_transformations_{st.session_state.username}"
+                        if user_transform_key not in st.session_state:
+                            st.session_state[user_transform_key] = []
+                            
+                        st.session_state[user_transform_key].append({
+                            "original_audio": audio_data,
+                            "transformed_audio": transformed_audio,
+                            "target_voice": v2v_voice,
+                            "model": v2v_model,
+                            "timestamp": time.time()
+                        })
+                    else:
+                        st.error("Voice transformation failed. Please try again.")
+        
+        # Tips
+        with st.expander("Voice Transformation Tips"):
+            st.markdown("""
+            ### Tips for better voice transformation:
+            
+            1. **Audio Quality**:
+               - Use high-quality recordings with minimal background noise
+               - Record in a quiet environment with a good microphone
+               - Speak clearly and at a consistent volume
+            
+            2. **File Types**:
+               - MP3, WAV, or M4A files work best
+               - Higher quality audio files produce better results
+            
+            3. **Content Guidelines**:
+               - Speak naturally and clearly in your recording
+               - Short to medium-length samples (30 seconds to 2 minutes) work best
+               - Avoid music or other voices in your recording
+               
+            4. **Voice Settings**:
+               - Adjust stability for more consistency (higher) or expressiveness (lower)
+               - Use similarity boost to make the output sound more like the target voice
+               - Experiment with style exaggeration to emphasize characteristics of the target voice
+               - Adjust speed to make the output voice faster or slower
+            """)
 
     # Recent generations section
     st.markdown("---")
@@ -929,7 +895,10 @@ def main():
                     with col2:
                         st.subheader("Transformed")
                         st.audio(transform["transformed_audio"], format="audio/mp3")
-                        st.markdown(get_audio_download_link(transform["transformed_audio"], f"transformed_{transform['target_voice']}_{i}.mp3"), unsafe_allow_html=True)
+                        st.markdown(get_audio_download_link(
+                            transform["transformed_audio"], 
+                            f"transformed_{transform['target_voice']}_{i}.mp3"
+                        ), unsafe_allow_html=True)
         else:
             st.info("Your recent voice transformations will appear here.")
 
