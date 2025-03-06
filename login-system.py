@@ -164,7 +164,7 @@ def show_login_page():
         backdrop-filter: blur(8px) !important;
         -webkit-backdrop-filter: blur(8px) !important;
         border: 1px solid rgba(123, 97, 255, 0.2) !important;
-        padding: 2rem !important;
+        padding: 1rem !important;
         overflow: hidden !important;
         margin-top: .1rem !important;
         margin-bottom: .1rem !important;
