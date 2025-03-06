@@ -148,13 +148,13 @@ def show_login_page():
             border-color: #1E88E5 !important;
             box-shadow: 0 0 0 1px #1E88E5 !important;
         }
-
+    
         /* Remove the default red outline */
         .stTextInput div[data-focused="true"] > div {
             border-color: #1E88E5 !important;
             box-shadow: none !important;
         }
-
+    
         /* Additional styling to ensure no red appears */
         .stTextInput div {
             border-color: transparent !important;
@@ -173,9 +173,10 @@ def show_login_page():
             color: #424242;
         }
         
-        /* Enhanced button styling with !important flags */
+        /* Enhanced button styling with !important flags for all button types */
         div[data-testid="stForm"] .stButton > button,
-        .stButton > button {
+        .stButton > button,
+        button[kind="primaryFormSubmit"] {
             width: 100% !important;
             background-color: #1E88E5 !important;
             color: white !important;
@@ -189,9 +190,18 @@ def show_login_page():
             margin-bottom: 5px !important;
         }
         
-        /* Even more specific selector for the button */
-        form[data-testid="stForm"] .stButton > button:first-child,
-        .stButton > button:hover {
+        /* Specific styling for form submit buttons */
+        [data-testid="stFormSubmitButton"] > button,
+        button[kind="primaryFormSubmit"]:hover,
+        form [data-testid="stFormSubmitButton"] button {
+            background-color: #1E88E5 !important;
+            color: white !important;
+        }
+        
+        /* Hover styles for all buttons */
+        .stButton > button:hover,
+        button[kind="primaryFormSubmit"]:hover,
+        [data-testid="stFormSubmitButton"] > button:hover {
             background-color: #154b82 !important;
             color: white !important;
         }
@@ -247,10 +257,27 @@ def show_login_page():
         # Title
         st.markdown('<h1 class="login-title">Tasty Voice Generator</h1>', unsafe_allow_html=True)
 
-        # Use a form for Enter key functionality
+        # Use a form for Enter key functionality with styled button
         with st.form("login_form", clear_on_submit=False):
             username = st.text_input("Username")
             password = st.text_input("Password", type="password")
+            
+            # Custom CSS for the submit button using HTML
+            st.markdown("""
+            <style>
+            /* Additional specific styling for THIS form's submit button */
+            [data-testid="stFormSubmitButton"] button {
+                background-color: #1E88E5 !important;
+                color: white !important;
+                border: none !important;
+                border-radius: 5px !important;
+                padding: 10px 0 !important;
+                font-weight: 500 !important;
+                width: 100% !important;
+            }
+            </style>
+            """, unsafe_allow_html=True)
+            
             submit_button = st.form_submit_button("Sign In", use_container_width=True)
             
             if submit_button:
