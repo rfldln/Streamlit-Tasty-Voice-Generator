@@ -128,19 +128,13 @@ def show_login_page():
     # Apply custom CSS for the login page
     st.markdown("""
     <style>
-        /* Lighter dark theme background */
-        .stApp {
-            background-color: #2E3440;
-            color: #ECEFF4;
-        }
-        
         /* Title styling */
         .login-title {
             font-size: 2rem;
             font-weight: 600;
             text-align: center;
             margin-bottom: 1rem;
-            color: #88C0D0;
+            color: #1E88E5;
         }
         
         /* Logo styling */
@@ -151,13 +145,13 @@ def show_login_page():
         
         /* Style for the outer container of text inputs when focused */
         .stTextInput > div[data-focused="true"] {
-            border-color: #88C0D0 !important;
-            box-shadow: 0 0 0 1px #88C0D0 !important;
+            border-color: #1E88E5 !important;
+            box-shadow: 0 0 0 1px #1E88E5 !important;
         }
     
         /* Remove the default red outline */
         .stTextInput div[data-focused="true"] > div {
-            border-color: #88C0D0 !important;
+            border-color: #1E88E5 !important;
             box-shadow: none !important;
         }
     
@@ -170,14 +164,13 @@ def show_login_page():
         .stTextInput > div > div > input {
             border-radius: 5px;
             padding: 10px 15px;
-            background-color: #3B4252;
-            color: #ECEFF4;
+            background-color: #262730;
         }
         
         /* Label styling */
         .stTextInput > label {
             font-weight: 500;
-            color: #D8DEE9;
+            color: #424242;
         }
         
         /* Enhanced button styling with !important flags for all button types */
@@ -185,8 +178,8 @@ def show_login_page():
         .stButton > button,
         button[kind="primaryFormSubmit"] {
             width: 100% !important;
-            background-color: #88C0D0 !important;
-            color: #2E3440 !important;
+            background-color: #1E88E5 !important;
+            color: white !important;
             border: none !important;
             border-radius: 5px !important;
             padding: 10px 0 !important;
@@ -201,16 +194,16 @@ def show_login_page():
         [data-testid="stFormSubmitButton"] > button,
         button[kind="primaryFormSubmit"]:hover,
         form [data-testid="stFormSubmitButton"] button {
-            background-color: #88C0D0 !important;
-            color: #2E3440 !important;
+            background-color: #1E88E5 !important;
+            color: white !important;
         }
         
         /* Hover styles for all buttons */
         .stButton > button:hover,
         button[kind="primaryFormSubmit"]:hover,
         [data-testid="stFormSubmitButton"] > button:hover {
-            background-color: #5E81AC !important;
-            color: #ECEFF4 !important;
+            background-color: #154b82 !important;
+            color: white !important;
         }
         
         /* Error and success messages */
@@ -225,7 +218,7 @@ def show_login_page():
             text-align: center;
             margin-top: 2.5rem;
             font-size: 0.8rem;
-            color: #D8DEE9;
+            color: #757575;
         }
         
         /* Hide default streamlit elements */
@@ -253,10 +246,10 @@ def show_login_page():
         st.markdown('''
         <div class="logo-container">
             <svg width="70" height="70" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="12" cy="12" r="10" stroke="#88C0D0" stroke-width="2"/>
-                <path d="M8 12C8 10.8954 8.89543 10 10 10H14C15.1046 10 16 10.8954 16 12V16C16 17.1046 15.1046 18 14 18H10C8.89543 18 8 17.1046 8 16V12Z" fill="#88C0D0"/>
-                <path d="M10 7L14 7" stroke="#88C0D0" stroke-width="2" stroke-linecap="round"/>
-                <path d="M12 10V7" stroke="#88C0D0" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="12" cy="12" r="10" stroke="#1E88E5" stroke-width="2"/>
+                <path d="M8 12C8 10.8954 8.89543 10 10 10H14C15.1046 10 16 10.8954 16 12V16C16 17.1046 15.1046 18 14 18H10C8.89543 18 8 17.1046 8 16V12Z" fill="#1E88E5"/>
+                <path d="M10 7L14 7" stroke="#1E88E5" stroke-width="2" stroke-linecap="round"/>
+                <path d="M12 10V7" stroke="#1E88E5" stroke-width="2" stroke-linecap="round"/>
             </svg>
         </div>
         ''', unsafe_allow_html=True)
@@ -274,8 +267,8 @@ def show_login_page():
             <style>
             /* Additional specific styling for THIS form's submit button */
             [data-testid="stFormSubmitButton"] button {
-                background-color: #88C0D0 !important;
-                color: #2E3440 !important;
+                background-color: #1E88E5 !important;
+                color: white !important;
                 border: none !important;
                 border-radius: 5px !important;
                 padding: 10px 0 !important;
@@ -384,93 +377,6 @@ def main():
         page_icon="🔊",
         layout="wide"
     )
-    
-    # Add lighter dark theme styling for all users
-    st.markdown("""
-    <style>
-        /* Lighter dark theme background colors - Nord palette inspired */
-        .stApp {
-            background-color: #2E3440;
-            color: #ECEFF4;
-        }
-        
-        /* Darkening the sidebar - slightly darker than main area */
-        [data-testid="stSidebar"] {
-            background-color: #3B4252;
-        }
-        
-        /* Styling for cards, expanders, and other components */
-        .stExpander, div.stButton > button, .stTextInput > div {
-            background-color: #434C5E;
-            color: #ECEFF4;
-            border-color: #4C566A;
-        }
-        
-        /* Input fields background */
-        .stTextInput > div > div > input, .stTextArea > div > div > textarea {
-            background-color: #3B4252;
-            color: #ECEFF4;
-        }
-        
-        /* Selectbox styling */
-        [data-testid="stSelectbox"] {
-            background-color: #3B4252;
-            color: #ECEFF4;
-        }
-        
-        /* Make sure text is visible on the dark background */
-        p, h1, h2, h3, h4, h5, h6, .stMarkdown, .stText {
-            color: #ECEFF4 !important;
-        }
-        
-        /* Button styling */
-        .stButton > button {
-            background-color: #88C0D0 !important;
-            color: #2E3440 !important;
-        }
-        
-        .stButton > button:hover {
-            background-color: #5E81AC !important;
-            color: #ECEFF4 !important;
-        }
-        
-        /* Tables styling */
-        .stTable {
-            background-color: #3B4252;
-        }
-        
-        /* Slider track */
-        .stSlider > div > div > div > div {
-            background-color: #4C566A;
-        }
-        
-        /* Audio player styling */
-        audio {
-            background-color: #434C5E;
-        }
-        
-        /* Table text in dark mode */
-        .stDataFrame td, .stDataFrame th {
-            color: #E5E9F0 !important;
-        }
-        
-        /* Header coloring */
-        [data-testid="stHeader"] {
-            background-color: #2E3440;
-        }
-        
-        /* Dropdown items */
-        ul[role="listbox"] li {
-            background-color: #3B4252;
-            color: #ECEFF4;
-        }
-        
-        /* Expander content */
-        .stExpander > div[data-baseweb="accordion"] > div {
-            background-color: #434C5E;
-        }
-    </style>
-    """, unsafe_allow_html=True)
     
     # Check if user is logged in
     if "logged_in" not in st.session_state or not st.session_state.logged_in:
