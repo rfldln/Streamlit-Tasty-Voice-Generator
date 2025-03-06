@@ -341,7 +341,7 @@ def show_login_page():
         ''', unsafe_allow_html=True)
         
         # Title
-        st.markdown('<h1 class="login-title">Cosmic Voice Generator</h1>', unsafe_allow_html=True)
+        st.markdown('<h1 class="login-title">Tasty Voice Generator</h1>', unsafe_allow_html=True)
 
         # Use a form for Enter key functionality with styled button
         with st.form("login_form", clear_on_submit=False):
@@ -362,12 +362,12 @@ def show_login_page():
                     st.error("Invalid username or password")
         
         # Footer
-        st.markdown('<div class="footer">© 2025 Cosmic Voice Generator</div>', unsafe_allow_html=True)
+        st.markdown('<div class="footer">© 2025 Tasty Voice Generator</div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)  # Close the centered content
 
 def show_admin_panel():
     """Show the admin panel for user management"""
-    st.title("Cosmic Control Panel")
+    st.title("Admin Control Panel")
     
     # Additional CSS for admin panel
     st.markdown("""
@@ -492,7 +492,7 @@ def show_admin_panel():
 def main():
     # Set page config
     st.set_page_config(
-        page_title="Cosmic Voice Generator",
+        page_title="Tasty Voice Generator",
         page_icon="🌌",
         layout="wide"
     )
@@ -889,7 +889,7 @@ def main():
             
         st.markdown("---")
         
-        st.header("Cosmic Engine")
+        st.header("Model Selection")
         # Separate models for TTS and voice conversion
         tts_model_options = {
             "Multilingual v2 (Enhanced)": "eleven_multilingual_v2",
@@ -930,7 +930,7 @@ def main():
         st.session_state.vc_model = selected_vc_model
         selected_vc_model_id = voice_conversion_model_options[selected_vc_model]
         
-        st.header("Cosmic Controls")
+        st.header("Voice Settings")
         stability = st.slider("Stability", min_value=0.0, max_value=1.0, value=0.5, step=0.01,
                             help="The voice will sound more consistent among re-generations if stability is increased, but it may also sound a little monotonous.  We advise reducing this value for lengthy text passages.")
         
@@ -945,7 +945,7 @@ def main():
                                     help="High values are recommended if the style of the speech should be exaggerated compared to the uploaded audio. Higher values can lead to more instability in the generated speech. Setting this to 0.0 will greatly increase generation speed and is the default setting.")
         
         st.markdown("---")
-        st.markdown("Made with ✨ by cosmic engineers")
+        st.markdown("Made with ❤️ by raffyboi")
 
     # Function to get available voices
     @st.cache_data(ttl=3600)  # Cache for one hour
@@ -1023,7 +1023,7 @@ def main():
         }
         
         try:
-            st.info(f"Transmitting to cosmic servers with engine: {model_id}")
+            st.info(f"Sending request to ElevenLabs with model: {model_id}")
             response = requests.post(url, headers=headers, files=files, data=data)
             response.raise_for_status()
             return response.content
@@ -1034,9 +1034,9 @@ def main():
             return None
 
     # Function to create download link with enhanced styling
-    def get_audio_download_link(audio_data, filename="cosmic_voice.mp3"):
+    def get_audio_download_link(audio_data, filename="generated_voice.mp3"):
         b64 = base64.b64encode(audio_data).decode()
-        href = f'<a href="data:audio/mpeg;base64,{b64}" download="{filename}">DOWNLOAD COSMIC AUDIO</a>'
+        href = f'<a href="data:audio/mpeg;base64,{b64}" download="{filename}">DOWNLOAD GENERATED AUDIO</a>'
         return href
 
     # Check if API key is valid
@@ -1054,28 +1054,28 @@ def main():
     voice_options = {voice["name"]: voice["voice_id"] for voice in voices_data["voices"]}
 
     # App title
-    st.title("Cosmic Voice Generator")
+    st.title("Tasty Voice Generator")
     
     # Create tabs
-    tab1, tab2 = st.tabs(["Text to Cosmic Voice", "Voice Transmutation"])
+    tab1, tab2 = st.tabs(["Text to Voice", "Voice Changer"])
     
     with tab1:
         st.markdown("Generate otherworldly AI voices from your text")
         
         # Text input area
         st.header("Enter Your Message")
-        text_input = st.text_area("Type your cosmic message here", height=150)
+        text_input = st.text_area("Type or paste text here", height=150)
 
         # Voice selection
-        selected_voice_name = st.selectbox("Select Cosmic Voice", options=list(voice_options.keys()))
+        selected_voice_name = st.selectbox("Select Voice", options=list(voice_options.keys()))
         selected_voice_id = voice_options[selected_voice_name]
 
         # Generate button
-        if st.button("GENERATE COSMIC VOICE", key="generate_tts"):
+        if st.button("GENERATE VOICE", key="generate_tts"):
             if not text_input.strip():
                 st.warning("Please enter some text to convert to speech.")
             else:
-                with st.spinner("Generating cosmic voice..."):
+                with st.spinner("Generating voice..."):
                     # Prepare voice settings with all parameters
                     voice_settings = {
                         "stability": stability,
@@ -1117,7 +1117,7 @@ def main():
 
         # Recent generations section
         st.markdown("---")
-        st.header("Cosmic Archives")
+        st.header("Recent Generations")
 
         # Get user-specific generations for TTS
         user_gen_key = f"recent_generations_{st.session_state.username}"
@@ -1130,43 +1130,43 @@ def main():
                 for i, gen in enumerate(reversed(tts_generations[-5:])):  # Show last 5
                     with st.expander(f"{gen['voice']} ({gen.get('model', 'Default Engine')}): {gen['text']}"):
                         st.audio(gen["audio_data"], format="audio/mp3")
-                        st.markdown(get_audio_download_link(gen["audio_data"], f"cosmic_{gen['voice']}_{i}.mp3"), unsafe_allow_html=True)
+                        st.markdown(get_audio_download_link(gen["audio_data"], f"{gen['voice']}_{i}.mp3"), unsafe_allow_html=True)
             else:
-                st.info("Your cosmic voice recordings will appear here.")
+                st.info("Your voice recordings will appear here.")
         else:
-            st.info("Your cosmic voice recordings will appear here.")
+            st.info("Your voice recordings will appear here.")
 
         # Tips for text-to-speech
-        with st.expander("Cosmic Voice Tips"):
+        with st.expander("Tips for better text-to-speech"):
             st.markdown("""
-            - For more natural cosmic voices, include punctuation in your text
-            - Use commas and periods to control the cosmic flow
-            - Add question marks for rising cosmic intonation
-            - Try different stability settings for varied cosmic effects
+            - For more natural sounding speech, include punctuation in your text
+            - Use commas and periods to control pacing
+            - Add question marks for rising intonation
+            - Try different stability and similarity boost settings for different effects
             - Higher stability makes the voice more consistent but less expressive
-            - Higher similarity boost makes the voice sound more like the original cosmic entity
-            - Adjust speed to alter the cosmic frequency of speech
-            - Use style exaggeration to emphasize the unique cosmic characteristics
+            - Higher similarity boost makes the voice sound more like the original sample
+            - Adjust speed to make speech faster or slower
+            - Use style exaggeration to emphasize the unique characteristics of the voice
             """)
 
     with tab2:
-        st.markdown("Transform your mortal voice into a cosmic entity")
+        st.markdown("Transform your voice into another voice")
         
         # Upload audio
-        st.header("Upload Your Voice")
+        st.header("Upload Audio")
         uploaded_file = st.file_uploader("Upload an audio file (MP3, WAV, M4A)", type=["mp3", "wav", "m4a"])
         
         # Target voice selection
-        st.header("Select Target Cosmic Entity")
+        st.header("Select Target Voice")
         target_voice_name = st.selectbox("Voice to transform into", options=list(voice_options.keys()), key="target_voice")
         target_voice_id = voice_options[target_voice_name]
         
         # Convert button
-        if st.button("COSMIC TRANSMUTATION", key="convert_voice"):
+        if st.button("Convert Voice", key="convert_voice"):
             if uploaded_file is None:
                 st.warning("Please upload an audio file to transform.")
             else:
-                with st.spinner("Performing cosmic transmutation..."):
+                with st.spinner("Converting voice..."):
                     # Read the uploaded file
                     audio_bytes = uploaded_file.read()
                     
@@ -1184,11 +1184,11 @@ def main():
                     
                     if converted_audio:
                         # Display converted audio
-                        st.subheader("Cosmic Transformation")
+                        st.subheader("Converted Audio")
                         st.audio(converted_audio, format="audio/mp3")
                         
                         # Display download link
-                        st.markdown(get_audio_download_link(converted_audio, f"cosmic_{target_voice_name}.mp3"), unsafe_allow_html=True)
+                        st.markdown(get_audio_download_link(converted_audio, f"{target_voice_name}.mp3"), unsafe_allow_html=True)
                         
                         # Create a user-specific key for recent conversions
                         user_gen_key = f"recent_generations_{st.session_state.username}"
@@ -1220,21 +1220,21 @@ def main():
                 for i, gen in enumerate(reversed(voice_conversions[-5:])):  # Show last 5
                     with st.expander(f"Transformation to {gen['voice']} ({gen.get('model', 'Default Engine')})"):
                         st.audio(gen["audio_data"], format="audio/mp3")
-                        st.markdown(get_audio_download_link(gen["audio_data"], f"cosmic_{gen['voice']}_{i}.mp3"), unsafe_allow_html=True)
+                        st.markdown(get_audio_download_link(gen["audio_data"], f"{gen['voice']}_{i}.mp3"), unsafe_allow_html=True)
             else:
                 st.info("Your voice transmutations will appear here.")
         else:
             st.info("Your voice transmutations will appear here.")
         
         # Tips for voice conversion
-        with st.expander("Cosmic Transmutation Tips"):
+        with st.expander("Tips for better voice conversion"):
             st.markdown("""
-            - For optimal cosmic results, use high-quality audio with clear speech
-            - Keep audio under 30 seconds for faster transmutation
+            - For best results, use high-quality audio recordings with clear speech
+            - Keep the audio under 30 seconds for faster processing
             - Avoid background noise in your input audio
-            - Try different cosmic entities to find the best match for your voice
-            - Adjust stability and similarity boost for different cosmic effects
-            - Use a consistent speaking pace for more natural-sounding transmutations
+            - Try different voices to find the best match for your voice type
+            - Adjust stability and similarity boost settings for different effects
+            - Use a consistent speaking pace for more natural-sounding conversions
             - When recording your voice, speak clearly and at a consistent volume
             - For professional results, record in a quiet environment with minimal echo
             """)
