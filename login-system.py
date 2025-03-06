@@ -471,7 +471,7 @@ def generate_voice(api_key, voice_id, text, model_id, voice_settings):
             st.error(f"API response: {e.response.text}")
         return None
 
-# Function for voice to voice (speech to speech) conversion
+# Function for voice to voice (speech to speech) conversion with improved error handling
 def speech_to_speech(api_key, audio_data, voice_id, model_id, voice_settings=None):
     """
     Convert speech from uploaded audio to a different voice using ElevenLabs Speech-to-Speech API.
@@ -507,9 +507,19 @@ def speech_to_speech(api_key, audio_data, voice_id, model_id, voice_settings=Non
         response.raise_for_status()
         return response.content
     except requests.exceptions.RequestException as e:
-        st.error(f"Error converting voice: {str(e)}")
+        error_message = f"Error converting voice: {str(e)}"
         if hasattr(e, 'response') and e.response is not None:
-            st.error(f"API response: {e.response.text}")
+            try:
+                error_detail = json.loads(e.response.text)
+                if 'detail' in error_detail:
+                    if isinstance(error_detail['detail'], dict) and 'message' in error_detail['detail']:
+                        error_message += f"\nAPI message: {error_detail['detail']['message']}"
+                    else:
+                        error_message += f"\nAPI response: {error_detail['detail']}"
+            except:
+                error_message += f"\nAPI response: {e.response.text}"
+        
+        st.error(error_message)
         return None
 
 # Function to create download link with enhanced styling
@@ -743,15 +753,20 @@ def main():
         st.header("Voice to Voice Converter")
         st.markdown("Upload your voice recording and transform it into another voice")
         
+        # Info box about Speech-to-Speech feature
+        st.info("""
+            **Important:** Voice conversion requires ElevenLabs subscription with access to the Speech-to-Speech feature.
+            Only specific models support voice conversion. If you encounter errors, please make sure your account has 
+            access to this feature.
+        """)
+        
         # Voice selection
         v2v_voice = st.selectbox("Select Target Voice", options=list(voice_options.keys()), key="v2v_voice")
         v2v_voice_id = voice_options[v2v_voice]
         
-        # Model selection
+        # Model selection - ONLY INCLUDE MODELS THAT SUPPORT SPEECH-TO-SPEECH
         v2v_model_options = {
-            "Multilingual v2 (Enhanced)": "eleven_multilingual_v2",
-            "Monolingual v1 (English only)": "eleven_monolingual_v1",
-            "Multilingual v1 (Multiple languages)": "eleven_multilingual_v1"
+            "Speech-to-Speech (Recommended)": "eleven_monolingual_v1",  # This model should support voice conversion
         }
         v2v_model = st.selectbox("Select Model", options=list(v2v_model_options.keys()), key="v2v_model")
         v2v_model_id = v2v_model_options[v2v_model]
@@ -833,7 +848,15 @@ def main():
                             "timestamp": time.time()
                         })
                     else:
-                        st.error("Voice transformation failed. Please try again.")
+                        st.error("""
+                        Voice transformation failed. This could be due to one of these reasons:
+                        
+                        1. Your ElevenLabs account may not have access to the Speech-to-Speech feature
+                        2. The selected model might not support voice conversion
+                        3. The audio file may be in an unsupported format or too large
+                        
+                        Try using a different model or checking your ElevenLabs subscription.
+                        """)
         
         # Tips
         with st.expander("Voice Transformation Tips"):
@@ -860,6 +883,60 @@ def main():
                - Experiment with style exaggeration to emphasize characteristics of the target voice
                - Adjust speed to make the output voice faster or slower
             """)
+        
+        # Add a divider after the voice conversion section
+        st.markdown("---")
+        
+        # Add a text-based alternative
+        st.header("Text-Based Voice Conversion Alternative")
+        st.markdown("""
+        If the direct voice-to-voice conversion isn't working with your account, 
+        you can use this alternative approach:
+        
+        1. First, transcribe your audio (using a service like Google Speech-to-Text or Whisper)
+        2. Then paste the transcript below to generate it with a different voice
+        """)
+        
+        # Text input for transcript
+        transcript = st.text_area("Paste transcript of your audio here:", height=150, key="transcript")
+        
+        # Voice selection
+        alt_voice = st.selectbox("Select Voice", options=list(voice_options.keys()), key="alt_voice")
+        alt_voice_id = voice_options[alt_voice]
+        
+        # Generate button
+        if st.button("Generate", key="alt_generate"):
+            if not transcript.strip():
+                st.warning("Please enter some text first.")
+            else:
+                with st.spinner("Generating voice..."):
+                    # Use the existing voice settings from sidebar
+                    voice_settings = {
+                        "stability": stability,
+                        "similarity_boost": similarity_boost,
+                        "style": style_exaggeration,
+                        "speaker_boost": True,
+                        "speed": speed
+                    }
+                    
+                    # Generate voice
+                    audio_data = generate_voice(
+                        api_key,
+                        alt_voice_id,
+                        transcript,
+                        selected_model_id,
+                        voice_settings
+                    )
+                    
+                    if audio_data:
+                        # Display audio player
+                        st.audio(audio_data, format="audio/mp3")
+                        
+                        # Display download link
+                        st.markdown(get_audio_download_link(
+                            audio_data, 
+                            f"alternative_voice_{alt_voice}.mp3"
+                        ), unsafe_allow_html=True)
 
     # Recent generations section
     st.markdown("---")
