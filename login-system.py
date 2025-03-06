@@ -122,61 +122,82 @@ def delete_user(username, users, current_user):
     save_users(users)
     return True, f"User '{username}' deleted successfully"
 
-# Login page - enhanced with reliable styling
+# Login page - enhanced with more aggressive styling
 def show_login_page():
-    """Show the styled login page"""
-    # Apply custom CSS for the login page
+    """Show the styled login page with more robust CSS"""
+    # Apply universal CSS at the beginning of the app
     st.markdown("""
     <style>
+        /* Reset some basic elements */
+        * {
+            box-sizing: border-box;
+        }
+        
         /* Title styling */
         .login-title {
-            font-size: 2rem;
-            font-weight: 600;
-            text-align: center;
-            margin-bottom: 1rem;
-            color: #1E88E5;
+            font-size: 2rem !important;
+            font-weight: 600 !important;
+            text-align: center !important;
+            margin-bottom: 1rem !important;
+            color: #1E88E5 !important;
         }
         
         /* Logo styling */
         .logo-container {
-            text-align: center;
-            margin-bottom: 1rem;
+            text-align: center !important;
+            margin-bottom: 1rem !important;
         }
         
-        /* Style for the outer container of text inputs when focused */
-        .stTextInput > div[data-focused="true"] {
+        /* More aggressive styling for input fields with multiple selectors */
+        .stTextInput input,
+        [data-baseweb="input"] input,
+        .css-1n76uvr input,
+        input[type="text"],
+        input[type="password"] {
+            border-radius: 5px !important;
+            padding: 10px 15px !important;
+            background-color: #262730 !important;
+            width: 100% !important;
+        }
+        
+        /* Targeted focus states */
+        .stTextInput [data-baseweb="input"]:focus-within,
+        .stTextInput div[data-focused="true"],
+        [data-baseweb="input"]:focus-within {
             border-color: #1E88E5 !important;
             box-shadow: 0 0 0 1px #1E88E5 !important;
         }
-    
-        /* Remove the default red outline */
-        .stTextInput div[data-focused="true"] > div {
+        
+        /* Additional targeting to override focus styling */
+        .stTextInput div[data-focused="true"] > div,
+        [data-baseweb="input"]:focus-within > div {
             border-color: #1E88E5 !important;
             box-shadow: none !important;
         }
-    
-        /* Additional styling to ensure no red appears */
-        .stTextInput div {
+        
+        /* Default border color */
+        .stTextInput div,
+        [data-baseweb="input"] div {
             border-color: transparent !important;
         }
         
-        /* Form input fields */
-        .stTextInput > div > div > input {
-            border-radius: 5px;
-            padding: 10px 15px;
-            background-color: #262730;
+        /* Label styling with !important */
+        .stTextInput > label,
+        [data-baseweb="input"] + label {
+            font-weight: 500 !important;
+            color: #424242 !important;
         }
         
-        /* Label styling */
-        .stTextInput > label {
-            font-weight: 500;
-            color: #424242;
-        }
-        
-        /* Enhanced button styling with !important flags for all button types */
+        /* Ultra aggressive button styling to override all Streamlit defaults */
         div[data-testid="stForm"] .stButton > button,
         .stButton > button,
-        button[kind="primaryFormSubmit"] {
+        button[kind="primaryFormSubmit"],
+        [data-testid="stFormSubmitButton"] > button,
+        form [data-testid="stFormSubmitButton"] button,
+        button.css-1x8cf1d,
+        button.css-7ym5gk,
+        button.css-13q3t3r,
+        button.css-1vgnxcy {
             width: 100% !important;
             background-color: #1E88E5 !important;
             color: white !important;
@@ -188,46 +209,58 @@ def show_login_page():
             transition: background-color 0.3s !important;
             margin-top: 5px !important;
             margin-bottom: 5px !important;
+            display: block !important;
+            text-align: center !important;
+            box-shadow: none !important;
         }
         
-        /* Specific styling for form submit buttons */
-        [data-testid="stFormSubmitButton"] > button,
-        button[kind="primaryFormSubmit"]:hover,
-        form [data-testid="stFormSubmitButton"] button {
-            background-color: #1E88E5 !important;
-            color: white !important;
-        }
-        
-        /* Hover styles for all buttons */
+        /* Hover styles for all buttons with ultra-specific selectors */
         .stButton > button:hover,
         button[kind="primaryFormSubmit"]:hover,
-        [data-testid="stFormSubmitButton"] > button:hover {
+        [data-testid="stFormSubmitButton"] > button:hover,
+        button.css-1x8cf1d:hover,
+        button.css-7ym5gk:hover,
+        button.css-13q3t3r:hover,
+        button.css-1vgnxcy:hover {
             background-color: #154b82 !important;
             color: white !important;
+            border: none !important;
         }
         
         /* Error and success messages */
         .stAlert {
-            text-align: center;
-            border-radius: 5px;
-            margin-top: 1.5rem;
+            text-align: center !important;
+            border-radius: 5px !important;
+            margin-top: 1.5rem !important;
         }
         
         /* Footer styling */
         .footer {
-            text-align: center;
-            margin-top: 2.5rem;
-            font-size: 0.8rem;
-            color: #757575;
+            text-align: center !important;
+            margin-top: 2.5rem !important;
+            font-size: 0.8rem !important;
+            color: #757575 !important;
         }
         
         /* Hide default streamlit elements */
-        #MainMenu {visibility: hidden;}
-        footer {visibility: hidden;}
+        #MainMenu {visibility: hidden !important;}
+        footer {visibility: hidden !important;}
         
         /* Center the login form vertically */
         .centered-content {
-            margin-top: 10vh;
+            margin-top: 10vh !important;
+        }
+        
+        /* Ensure form widgets display properly */
+        .stForm > div {
+            width: 100% !important;
+        }
+        
+        /* Cursor pointer for selectable items */
+        div[data-baseweb="select"],
+        div[data-baseweb="select"] > div,
+        li[role="option"] {
+            cursor: pointer !important;
         }
     </style>
     """, unsafe_allow_html=True)
@@ -262,11 +295,11 @@ def show_login_page():
             username = st.text_input("Username")
             password = st.text_input("Password", type="password")
             
-            # Custom CSS for the submit button using HTML
+            # Additional inline CSS specifically for the form submit button
             st.markdown("""
             <style>
             /* Additional specific styling for THIS form's submit button */
-            [data-testid="stFormSubmitButton"] button {
+            form[data-testid="stForm"] [data-testid="stFormSubmitButton"] > button {
                 background-color: #1E88E5 !important;
                 color: white !important;
                 border: none !important;
@@ -274,6 +307,7 @@ def show_login_page():
                 padding: 10px 0 !important;
                 font-weight: 500 !important;
                 width: 100% !important;
+                display: block !important;
             }
             </style>
             """, unsafe_allow_html=True)
@@ -298,6 +332,32 @@ def show_login_page():
 def show_admin_panel():
     """Show the admin panel for user management"""
     st.title("Admin Panel - User Management")
+    
+    # Additional CSS for admin panel
+    st.markdown("""
+    <style>
+        /* Admin panel specific styles */
+        .admin-header {
+            color: #1E88E5 !important;
+            margin-bottom: 1rem !important;
+        }
+        
+        /* Table styling */
+        .stTable {
+            border-collapse: collapse !important;
+        }
+        
+        .stTable th {
+            background-color: #f5f5f5 !important;
+            font-weight: 600 !important;
+        }
+        
+        .stTable td, .stTable th {
+            padding: 8px 12px !important;
+            border: 1px solid #e0e0e0 !important;
+        }
+    </style>
+    """, unsafe_allow_html=True)
     
     # Go back to main app
     if st.button("Return to Voice Generator"):
@@ -378,6 +438,68 @@ def main():
         layout="wide"
     )
     
+    # Apply global app CSS
+    st.markdown("""
+    <style>
+        /* Global app styling */
+        .stApp {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+        }
+        
+        /* Headers */
+        h1, h2, h3, h4, h5, h6 {
+            color: #1E88E5 !important;
+            font-weight: 600 !important;
+        }
+        
+        /* Form elements */
+        .stSlider > div[data-baseweb="slider"] {
+            margin-top: 10px !important;
+            margin-bottom: 10px !important;
+        }
+        
+        .stSelectbox > div[data-baseweb="select"] {
+            cursor: pointer !important;
+        }
+        
+        /* Audio player styling */
+        audio {
+            width: 100% !important;
+            margin-top: 10px !important;
+            margin-bottom: 10px !important;
+        }
+        
+        /* Download link styling */
+        a[download] {
+            display: inline-block !important;
+            background-color: #4CAF50 !important;
+            color: white !important;
+            padding: 8px 16px !important;
+            text-decoration: none !important;
+            border-radius: 4px !important;
+            margin-top: 10px !important;
+            margin-bottom: 10px !important;
+            font-weight: 500 !important;
+            transition: background-color 0.3s !important;
+        }
+        
+        a[download]:hover {
+            background-color: #3e8e41 !important;
+        }
+        
+        /* Expander styling */
+        .streamlit-expanderHeader {
+            font-weight: 500 !important;
+            color: #424242 !important;
+        }
+        
+        /* Sidebar styling */
+        .css-1d391kg, .css-1lcbmhc {
+            background-color: #f5f5f5 !important;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+    
     # Check if user is logged in
     if "logged_in" not in st.session_state or not st.session_state.logged_in:
         show_login_page()
@@ -409,31 +531,7 @@ def main():
             st.rerun()
             
         st.markdown("---")
-    
-    # Custom CSS to change cursor to pointer for select boxes
-    st.markdown("""
-    <style>
-        div[data-baseweb="select"] {
-            cursor: pointer !important;
-        }
         
-        div[data-baseweb="select"] > div {
-            cursor: pointer !important;
-        }
-        
-        /* This targets the dropdown options as well */
-        li[role="option"] {
-            cursor: pointer !important;
-        }
-    </style>
-    """, unsafe_allow_html=True)
-
-    # App title and description
-    st.title("Tasty Voice Generator")
-    st.markdown("Generate realistic AI voices of our models")
-
-    # Sidebar for settings (API key input removed)
-    with st.sidebar:
         st.header("Model Selection")
         model_options = {
             "Multilingual v2 (Enhanced)": "eleven_multilingual_v2",
@@ -506,7 +604,7 @@ def main():
                 st.error(f"API response: {e.response.text}")
             return None
 
-    # Function to create download link
+    # Function to create download link with enhanced styling
     def get_audio_download_link(audio_data, filename="generated_voice.mp3"):
         b64 = base64.b64encode(audio_data).decode()
         href = f'<a href="data:audio/mpeg;base64,{b64}" download="{filename}">Download MP3</a>'
@@ -525,6 +623,10 @@ def main():
 
     # Extract voice options for dropdown
     voice_options = {voice["name"]: voice["voice_id"] for voice in voices_data["voices"]}
+
+    # App title and description
+    st.title("Tasty Voice Generator")
+    st.markdown("Generate realistic AI voices of our models")
 
     # Text input area
     st.header("Enter Text to Convert")
