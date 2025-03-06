@@ -161,11 +161,11 @@ def show_login_page():
     /* Main content container */
     .block-container {
         background-color: rgba(30, 30, 60, 0.7) !important;
-        border-radius: 16px !important;
         backdrop-filter: blur(8px) !important;
         -webkit-backdrop-filter: blur(8px) !important;
         border: 1px solid rgba(123, 97, 255, 0.2) !important;
         padding: 2rem !important;
+        overflow: hidden !important;
         margin-top: .1rem !important;
         margin-bottom: .1rem !important;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
