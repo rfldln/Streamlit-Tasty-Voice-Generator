@@ -942,18 +942,39 @@ def main():
         st.markdown("---")
         st.markdown("Made with ❤️ by raffyboi")
 
-    # Function to get available voices
+    # Function to get filtered voices
     @st.cache_data(ttl=3600)  # Cache for one hour
-    def get_voices(api_key):
+    def get_filtered_voices(api_key):
         url = "https://api.elevenlabs.io/v1/voices"
         headers = {
             "Accept": "application/json",
             "xi-api-key": api_key
         }
+        
+        # List of voice IDs you want to include in your application
+        selected_voice_ids = [
+            "21m00Tcm4TlvDq8ikWAM",  # Rachel
+            "AZnzlk1XvdvUeBnXmlld",  # Domi
+            "EXAVITQu4vr4xnSDxMaL",  # Bella
+            "MF3mGyEYCl7XYWbV9V6O",  # Adam
+            "TxGEqnHWrfWFTfGW9XjX",  # Josh
+            "VR6AewLTigWG4xSOukaG",  # Arnold
+            "pNInz6obpgDQGcFmaJgB",  # Adam
+            "yoZ06aMxZJJ28mfd3POQ"   # Sam
+            # Add more voice IDs as needed
+        ]
+        
         try:
             response = requests.get(url, headers=headers)
             response.raise_for_status()
-            return response.json()
+            voices_data = response.json()
+            
+            # Filter voices to only include the selected IDs
+            filtered_voices = {
+                "voices": [voice for voice in voices_data["voices"] 
+                          if voice["voice_id"] in selected_voice_ids]
+            }
+            return filtered_voices
         except requests.exceptions.RequestException as e:
             st.error(f"Error fetching voices: {str(e)}")
             return {"voices": []}
@@ -1038,8 +1059,8 @@ def main():
         st.error("API key not found. Please set the ELEVENLABS_API_KEY in your environment variables or .env file.")
         st.stop()
 
-    # Get available voices
-    voices_data = get_voices(api_key)
+    # Get available voices - using our filtered function instead of get_voices
+    voices_data = get_filtered_voices(api_key)
     if not voices_data.get("voices"):
         st.error("Could not fetch voices. Please check if the API key is valid.")
         st.stop()
