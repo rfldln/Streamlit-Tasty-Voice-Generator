@@ -255,7 +255,7 @@ def show_login_page():
                     st.session_state.is_admin = st.session_state.users[username]["is_admin"]
                     st.success("Login successful! Redirecting...")
                     time.sleep(1)  # Short delay for better UX
-                    st.experimental_rerun()
+                    st.rerun()
                 else:
                     st.error("Invalid username or password")
         
@@ -273,7 +273,7 @@ def show_admin_panel():
     # Go back to main app
     if st.button("Return to Voice Generator"):
         st.session_state.show_admin = False
-        st.experimental_rerun()
+        st.rerun()
     
     st.header("Create New User")
     with st.form("create_user_form"):
@@ -330,7 +330,7 @@ def show_admin_panel():
                 if success:
                     st.success(message)
                     # Refresh the page after successful deletion
-                    st.experimental_rerun()
+                    st.rerun()
                 else:
                     st.error(message)
 
