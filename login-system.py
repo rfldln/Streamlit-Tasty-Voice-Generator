@@ -358,6 +358,12 @@ def show_admin_panel():
                 )
                 if success:
                     st.success(message)
+                    
+                    # Clean up any user-specific data in session state
+                    user_gen_key = f"recent_generations_{user_to_delete}"
+                    if user_gen_key in st.session_state:
+                        del st.session_state[user_gen_key]
+                    
                     # Refresh the page after successful deletion
                     st.rerun()
                 else:
@@ -558,8 +564,14 @@ def main():
                     # Display download link
                     st.markdown(get_audio_download_link(audio_data), unsafe_allow_html=True)
                     
-                    # Save recent generation info
-                    st.session_state.setdefault("recent_generations", []).append({
+                    # Create a user-specific key for recent generations
+                    user_gen_key = f"recent_generations_{st.session_state.username}"
+                    
+                    # Save recent generation info to user-specific list
+                    if user_gen_key not in st.session_state:
+                        st.session_state[user_gen_key] = []
+                        
+                    st.session_state[user_gen_key].append({
                         "text": text_input[:50] + "..." if len(text_input) > 50 else text_input,
                         "voice": selected_voice_name,
                         "model": selected_model,
@@ -570,8 +582,11 @@ def main():
     st.markdown("---")
     st.header("Recent Generations")
 
-    if "recent_generations" in st.session_state and st.session_state["recent_generations"]:
-        for i, gen in enumerate(reversed(st.session_state["recent_generations"][-5:])):  # Show last 5
+    # Get user-specific generations
+    user_gen_key = f"recent_generations_{st.session_state.username}"
+
+    if user_gen_key in st.session_state and st.session_state[user_gen_key]:
+        for i, gen in enumerate(reversed(st.session_state[user_gen_key][-5:])):  # Show last 5
             with st.expander(f"{gen['voice']} ({gen.get('model', 'Default Model')}): {gen['text']}"):
                 st.audio(gen["audio_data"], format="audio/mp3")
                 st.markdown(get_audio_download_link(gen["audio_data"], f"{gen['voice']}_{i}.mp3"), unsafe_allow_html=True)
