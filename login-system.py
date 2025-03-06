@@ -248,11 +248,12 @@ def show_login_page():
                 else:
                     st.error("Invalid username or password")
         
-        # Close the login container
-        st.markdown('</div>', unsafe_allow_html=True)
-        
-        # Footer
-        st.markdown('<div class="footer">© 2025 Tasty Voice Generator</div>', unsafe_allow_html=True)
+    # Close the login container and the centered div
+    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Footer
+    st.markdown('<div class="footer">© 2025 Tasty Voice Generator</div>', unsafe_allow_html=True)
 
 def show_admin_panel():
     """Show the admin panel for user management"""
