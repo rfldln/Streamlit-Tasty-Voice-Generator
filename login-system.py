@@ -166,7 +166,7 @@ def show_login_page():
         -webkit-backdrop-filter: blur(8px) !important;
         border: 1px solid rgba(123, 97, 255, 0.2) !important;
         padding: 2rem !important;
-        height: 100%;
+        height: 100% !important;
         margin-top: .5rem !important;
         margin-bottom: .5rem !important;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
