@@ -133,7 +133,6 @@ def show_login_page():
         font-family: 'Poppins', 'Inter', sans-serif !important;
         background: linear-gradient(135deg, #0f0c29, #302b63, #24243e) !important;
         color: #e0e0ff !important;
-        overflow: hidden !important; /* Hide scrollbar */
     }
 
     /* Custom background - creates a subtle starfield effect */
@@ -157,18 +156,6 @@ def show_login_page():
         opacity: 0.15;
         z-index: -1;
         pointer-events: none;
-    }
-
-    /* Remove scrollbars for login page */
-    [data-testid="stAppViewContainer"] {
-        overflow: hidden !important;
-    }
-
-    .main .block-container {
-        overflow: hidden !important;
-        padding-top: 0 !important; 
-        padding-bottom: 0 !important;
-        max-width: 100% !important;
     }
 
     /* Main content container */
@@ -302,28 +289,19 @@ def show_login_page():
     #MainMenu {visibility: hidden !important;}
     footer {visibility: hidden !important;}
 
-    /* Full-height container for better vertical centering */
-    .full-height-container {
-        display: flex !important;
-        flex-direction: column !important;
-        justify-content: center !important;
-        align-items: center !important;
-        min-height: 100vh !important;
-        padding: 0 !important;
-        margin: 0 !important;
-    }
-
     /* Center the login form */
     .centered-content {
-        width: 100% !important;
-        max-width: 400px !important;
+        margin-top: 10vh !important;
+        padding: 2.5rem !important;
         background-color: rgba(30, 30, 60, 0.7) !important;
         border-radius: 16px !important;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+        max-width: 400px !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
         backdrop-filter: blur(8px) !important;
         -webkit-backdrop-filter: blur(8px) !important;
         border: 1px solid rgba(123, 97, 255, 0.2) !important;
-        padding: 2.5rem !important;
     }
 
     /* Add a subtle cosmic pulse animation to the login button */
@@ -356,52 +334,51 @@ def show_login_page():
     if "users" not in st.session_state:
         st.session_state.users = init_authentication()
     
-    # Create a full-height container for vertical centering
-    st.markdown('<div class="full-height-container">', unsafe_allow_html=True)
+    # Create a more compact centered layout
+    col1, col2, col3 = st.columns([2, 1, 2])
     
-    # Create centered login form
-    st.markdown('<div class="centered-content">', unsafe_allow_html=True)
-    
-    # Logo (you can replace with an actual logo)
-    st.markdown('''
-    <div class="logo-container">
-        <svg width="70" height="70" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="12" cy="12" r="10" stroke="#aa80ff" stroke-width="2"/>
-            <path d="M8 12C8 10.8954 8.89543 10 10 10H14C15.1046 10 16 10.8954 16 12V16C16 17.1046 15.1046 18 14 18H10C8.89543 18 8 17.1046 8 16V12Z" fill="#8e2de2"/>
-            <path d="M10 7L14 7" stroke="#aa80ff" stroke-width="2" stroke-linecap="round"/>
-            <path d="M12 10V7" stroke="#aa80ff" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-    </div>
-    ''', unsafe_allow_html=True)
-    
-    # Title
-    st.markdown('<h1 class="login-title">Tasty Voice Generator</h1>', unsafe_allow_html=True)
+    with col2:
+        st.markdown('<div class="centered-content">', unsafe_allow_html=True)
+        
+        # Logo (you can replace with an actual logo)
+        st.markdown('''
+        <div class="logo-container">
+            <svg width="70" height="70" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" stroke="#aa80ff" stroke-width="2"/>
+                <path d="M8 12C8 10.8954 8.89543 10 10 10H14C15.1046 10 16 10.8954 16 12V16C16 17.1046 15.1046 18 14 18H10C8.89543 18 8 17.1046 8 16V12Z" fill="#8e2de2"/>
+                <path d="M10 7L14 7" stroke="#aa80ff" stroke-width="2" stroke-linecap="round"/>
+                <path d="M12 10V7" stroke="#aa80ff" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+        </div>
+        ''', unsafe_allow_html=True)
+        
+        # Title
+        st.markdown('<h1 class="login-title">Tasty Voice Generator</h1>', unsafe_allow_html=True)
 
-    # Use a form for Enter key functionality with styled button
-    with st.form("login_form", clear_on_submit=False):
-        username = st.text_input("Username")
-        password = st.text_input("Password", type="password")
+        # Use a form for Enter key functionality with styled button
+        with st.form("login_form", clear_on_submit=False):
+            username = st.text_input("Username")
+            password = st.text_input("Password", type="password")
+            
+            submit_button = st.form_submit_button("Sign in", use_container_width=True)
+            
+            if submit_button:
+                if login_user(username, password, st.session_state.users):
+                    st.session_state.logged_in = True
+                    st.session_state.username = username
+                    st.session_state.is_admin = st.session_state.users[username]["is_admin"]
+                    st.success("Login successful! Redirecting...")
+                    time.sleep(1)  # Short delay for better UX
+                    st.rerun()
+                else:
+                    st.error("Invalid username or password")
         
-        submit_button = st.form_submit_button("Sign in", use_container_width=True)
+        # Add the dark theme note
+        st.markdown('<div class="theme-note">💡 This app looks best in dark theme!</div>', unsafe_allow_html=True)
         
-        if submit_button:
-            if login_user(username, password, st.session_state.users):
-                st.session_state.logged_in = True
-                st.session_state.username = username
-                st.session_state.is_admin = st.session_state.users[username]["is_admin"]
-                st.success("Login successful! Redirecting...")
-                time.sleep(1)  # Short delay for better UX
-                st.rerun()
-            else:
-                st.error("Invalid username or password")
-    
-    # Add the dark theme note
-    st.markdown('<div class="theme-note">💡 This app looks best in dark theme!</div>', unsafe_allow_html=True)
-    
-    # Footer
-    st.markdown('<div class="footer">© 2025 Tasty Voice Generator</div>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)  # Close the centered content
-    st.markdown('</div>', unsafe_allow_html=True)  # Close the full-height container
+        # Footer
+        st.markdown('<div class="footer">© 2025 Tasty Voice Generator</div>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)  # Close the centered content
 
 def show_admin_panel():
     """Show the admin panel for user management"""
