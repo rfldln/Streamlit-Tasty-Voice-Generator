@@ -365,13 +365,13 @@ def main():
         if st.session_state.is_admin:
             if st.button("User Management"):
                 st.session_state.show_admin = True
-                st.experimental_rerun()
+                st.rerun()
         
         if st.button("Logout"):
             st.session_state.logged_in = False
             st.session_state.username = None
             st.session_state.is_admin = False
-            st.experimental_rerun()
+            st.rerun()
             
         st.markdown("---")
     
