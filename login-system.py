@@ -871,8 +871,29 @@ def main():
         show_admin_panel()
         return
     
+    # Define model options at the beginning so they're accessible throughout the function
+    # Separate models for TTS and voice conversion
+    tts_model_options = {
+        "Multilingual v2 (Enhanced)": "eleven_multilingual_v2",
+        "Monolingual v1 (English only)": "eleven_monolingual_v1",
+        "Multilingual v1 (Multiple languages)": "eleven_multilingual_v1",
+        "Turbo (Faster generation)": "eleven_turbo_v2"
+    }
+    
+    voice_conversion_model_options = {
+        "Multilingual Voice Conversion": "eleven_multilingual_sts_v2",
+        "English Conversion Model": "eleven_english_sts_v2"
+    }
+    
+    # Store both model selections in session state
+    if "tts_model" not in st.session_state:
+        st.session_state.tts_model = list(tts_model_options.keys())[0]
+    
+    if "vc_model" not in st.session_state:
+        st.session_state.vc_model = list(voice_conversion_model_options.keys())[0]
+    
     # Main app logic starts here
-    # Adding a sidebar for user management
+    # Adding a sidebar for user management (without model selection)
     with st.sidebar:
         st.write(f"Logged in as: **{st.session_state.username}**")
         
@@ -888,47 +909,6 @@ def main():
             st.rerun()
             
         st.markdown("---")
-        
-        st.header("Model Selection")
-        # Separate models for TTS and voice conversion
-        tts_model_options = {
-            "Multilingual v2 (Enhanced)": "eleven_multilingual_v2",
-            "Monolingual v1 (English only)": "eleven_monolingual_v1",
-            "Multilingual v1 (Multiple languages)": "eleven_multilingual_v1",
-            "Turbo (Faster generation)": "eleven_turbo_v2"
-        }
-        
-        voice_conversion_model_options = {
-            "Multilingual Voice Conversion": "eleven_multilingual_sts_v2",
-            "English Conversion Model": "eleven_english_sts_v2"
-        }
-        
-        # Store both model selections in session state
-        if "tts_model" not in st.session_state:
-            st.session_state.tts_model = list(tts_model_options.keys())[0]
-        
-        if "vc_model" not in st.session_state:
-            st.session_state.vc_model = list(voice_conversion_model_options.keys())[0]
-        
-        # TTS model selection
-        selected_tts_model = st.selectbox(
-            "Select Text-to-Speech Engine", 
-            options=list(tts_model_options.keys()),
-            key="tts_model_select",
-            index=list(tts_model_options.keys()).index(st.session_state.tts_model)
-        )
-        st.session_state.tts_model = selected_tts_model
-        selected_tts_model_id = tts_model_options[selected_tts_model]
-        
-        # Voice conversion model selection
-        selected_vc_model = st.selectbox(
-            "Select Voice Conversion Engine", 
-            options=list(voice_conversion_model_options.keys()),
-            key="vc_model_select",
-            index=list(voice_conversion_model_options.keys()).index(st.session_state.vc_model)
-        )
-        st.session_state.vc_model = selected_vc_model
-        selected_vc_model_id = voice_conversion_model_options[selected_vc_model]
         
         st.header("Voice Settings")
         stability = st.slider("Stability", min_value=0.0, max_value=1.0, value=0.5, step=0.01,
@@ -1062,6 +1042,17 @@ def main():
     with tab1:
         st.markdown("Generate realistic AI voices based on our models")
         
+        # Add TTS model selection to this tab
+        st.header("Engine Selection")
+        selected_tts_model = st.selectbox(
+            "Select Text-to-Speech Engine", 
+            options=list(tts_model_options.keys()),
+            key="tts_model_select",
+            index=list(tts_model_options.keys()).index(st.session_state.tts_model)
+        )
+        st.session_state.tts_model = selected_tts_model
+        selected_tts_model_id = tts_model_options[selected_tts_model]
+        
         # Text input area
         st.header("Enter Your Message")
         text_input = st.text_area("Type or paste text here", height=150)
@@ -1151,6 +1142,17 @@ def main():
 
     with tab2:
         st.markdown("Transform your voice into another voice")
+        
+        # Add Voice Conversion model selection to this tab
+        st.header("Engine Selection")
+        selected_vc_model = st.selectbox(
+            "Select Voice Conversion Engine", 
+            options=list(voice_conversion_model_options.keys()),
+            key="vc_model_select",
+            index=list(voice_conversion_model_options.keys()).index(st.session_state.vc_model)
+        )
+        st.session_state.vc_model = selected_vc_model
+        selected_vc_model_id = voice_conversion_model_options[selected_vc_model]
         
         # Upload audio
         st.header("Upload Audio")
