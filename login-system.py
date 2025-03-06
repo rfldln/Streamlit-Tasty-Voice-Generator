@@ -167,7 +167,7 @@ def show_login_page():
         border: 1px solid rgba(123, 97, 255, 0.2) !important;
         padding: 2rem !important;
         overflow: hidden !important;
-        height: 100vh !important;
+        height: 100% !important;
         margin-top: 1rem !important;
         margin-bottom: 1rem !important;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
