@@ -20,512 +20,6 @@ try:
 except ImportError:
     pass
 
-# Theme-resistant CSS function
-def get_theme_independent_css():
-    return """
-    <style>
-    /* Use !important on all color-related properties */
-    /* Force a specific color scheme regardless of browser theme */
-    
-    /* Global app styling with increased specificity */
-    body .stApp {
-        font-family: 'Poppins', 'Inter', sans-serif !important;
-        background: linear-gradient(135deg, #0f0c29, #302b63, #24243e) !important;
-        color: #e0e0ff !important;
-        --text-color: #e0e0ff !important;
-        --background-color: #24243e !important;
-        --primary-color: #aa80ff !important;
-        --secondary-color: #8e2de2 !important;
-    }
-
-    /* Custom background with increased z-index to prevent theme overrides */
-    body .stApp::before {
-        content: '' !important;
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100% !important;
-        height: 100% !important;
-        background-image: 
-            radial-gradient(1px 1px at 25% 15%, white, transparent),
-            radial-gradient(1px 1px at 50% 35%, rgba(255, 255, 255, 0.8), transparent),
-            radial-gradient(1px 1px at 75% 50%, rgba(255, 255, 255, 0.9), transparent),
-            radial-gradient(1px 1px at 20% 65%, rgba(255, 255, 255, 0.7), transparent),
-            radial-gradient(1px 1px at 40% 80%, rgba(255, 255, 255, 0.8), transparent),
-            radial-gradient(1px 1px at 60% 25%, rgba(255, 255, 255, 0.9), transparent),
-            radial-gradient(1px 1px at 85% 85%, rgba(255, 255, 255, 0.8), transparent) !important;
-        background-repeat: repeat !important;
-        background-size: 250px 250px !important;
-        opacity: 0.15 !important;
-        z-index: 0 !important;
-        pointer-events: none !important;
-    }
-
-    /* Main content container with increased specificity and solid background */
-    body .stApp .block-container {
-        background-color: rgba(30, 30, 60, 0.9) !important;
-        border-radius: 16px !important;
-        backdrop-filter: blur(8px) !important;
-        -webkit-backdrop-filter: blur(8px) !important;
-        border: 1px solid rgba(123, 97, 255, 0.2) !important;
-        padding: 2rem !important;
-        margin-top: 1rem !important;
-        margin-bottom: 1rem !important;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
-        position: relative !important;
-        z-index: 1 !important;
-    }
-
-    /* Title styling with forced colors */
-    body .stApp h1, 
-    body .stApp h2, 
-    body .stApp h3, 
-    body .stApp h4, 
-    body .stApp h5, 
-    body .stApp h6 {
-        color: #aa80ff !important;
-        font-weight: 600 !important;
-        text-shadow: 0 0 10px rgba(170, 128, 255, 0.5) !important;
-        letter-spacing: 0.02em !important;
-    }
-
-    /* Login title with even more specificity */
-    body .stApp .login-title {
-        font-size: 2.2rem !important;
-        font-weight: 600 !important;
-        text-align: center !important;
-        margin-bottom: 1.5rem !important;
-        color: #aa80ff !important;
-        text-shadow: 0 0 15px rgba(170, 128, 255, 0.6) !important;
-    }
-
-    /* Logo styling */
-    body .stApp .logo-container {
-        text-align: center !important;
-        margin-bottom: 2rem !important;
-        filter: drop-shadow(0 0 8px rgba(170, 128, 255, 0.7)) !important;
-    }
-
-    /* Input field styling - forcing colors */
-    body .stApp .stTextInput input,
-    body .stApp [data-baseweb="input"] input,
-    body .stApp .css-1n76uvr input,
-    body .stApp input[type="text"],
-    body .stApp input[type="password"] {
-        border-radius: 8px !important;
-        padding: 12px 16px !important;
-        background-color: rgba(30, 30, 70, 0.9) !important;
-        border: 1px solid rgba(123, 97, 255, 0.4) !important;
-        color: #e0e0ff !important;
-        width: 100% !important;
-        transition: all 0.3s ease !important;
-        box-shadow: 0 0 5px rgba(123, 97, 255, 0.2) inset !important;
-        -webkit-text-fill-color: #e0e0ff !important;
-    }
-
-    /* Focus states with forced colors */
-    body .stApp .stTextInput [data-baseweb="input"]:focus-within,
-    body .stApp .stTextInput div[data-focused="true"],
-    body .stApp [data-baseweb="input"]:focus-within {
-        border-color: #aa80ff !important;
-        box-shadow: 0 0 8px rgba(170, 128, 255, 0.6) !important;
-    }
-
-    /* Cosmic button styling with solid colors */
-    body .stApp .stButton > button,
-    body .stApp button[kind="primaryFormSubmit"],
-    body .stApp [data-testid="stFormSubmitButton"] > button,
-    body .stApp form [data-testid="stFormSubmitButton"] button {
-        width: 100% !important;
-        background: linear-gradient(135deg, #8e2de2, #4a00e0) !important;
-        background-color: #8e2de2 !important; /* Fallback solid color */
-        color: white !important;
-        border: none !important;
-        border-radius: 8px !important;
-        padding: 12px 0 !important;
-        font-weight: 500 !important;
-        cursor: pointer !important;
-        transition: all 0.3s ease !important;
-        margin-top: 10px !important;
-        margin-bottom: 10px !important;
-        display: block !important;
-        text-align: center !important;
-        box-shadow: 0 4px 15px rgba(138, 43, 226, 0.4) !important;
-        text-transform: uppercase !important;
-        letter-spacing: 1px !important;
-        font-size: 0.9rem !important;
-    }
-
-    /* Hover styles with solid colors as fallback */
-    body .stApp .stButton > button:hover,
-    body .stApp button[kind="primaryFormSubmit"]:hover,
-    body .stApp [data-testid="stFormSubmitButton"] > button:hover {
-        transform: translateY(-2px) !important;
-        box-shadow: 0 6px 20px rgba(138, 43, 226, 0.6) !important;
-        background: linear-gradient(135deg, #9b4dff, #4a00e0) !important;
-        background-color: #9b4dff !important; /* Fallback solid color */
-    }
-
-    /* Add a subtle cosmic pulse animation to the login button */
-    body .stApp form [data-testid="stFormSubmitButton"] button {
-        animation: cosmicPulse 4s infinite alternate !important;
-    }
-
-    @keyframes cosmicPulse {
-        0% {
-            box-shadow: 0 4px 15px rgba(138, 43, 226, 0.4);
-        }
-        100% {
-            box-shadow: 0 4px 25px rgba(138, 43, 226, 0.7);
-        }
-    }
-
-    /* Error and success messages with solid backgrounds */
-    body .stApp .stAlert {
-        border-radius: 8px !important;
-        margin-top: 1.5rem !important;
-        padding: 1rem !important;
-        border: none !important;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2) !important;
-        background-color: rgba(40, 40, 80, 0.95) !important;
-        backdrop-filter: blur(4px) !important;
-        -webkit-backdrop-filter: blur(4px) !important;
-        color: #e0e0ff !important;
-    }
-
-    /* Force alert text color regardless of browser theme */
-    body .stApp .stAlert p,
-    body .stApp .stAlert span,
-    body .stApp .stAlert div {
-        color: #e0e0ff !important;
-    }
-
-    /* Footer styling */
-    body .stApp .footer {
-        text-align: center !important;
-        margin-top: 3rem !important;
-        font-size: 0.9rem !important;
-        color: rgba(224, 224, 255, 0.7) !important;
-        padding-bottom: 2rem !important;
-    }
-
-    /* Text area styling with solid background */
-    body .stApp .stTextArea textarea {
-        border-radius: 8px !important;
-        border: 1px solid rgba(123, 97, 255, 0.4) !important;
-        background-color: rgba(30, 30, 70, 0.95) !important;
-        padding: 12px 16px !important;
-        min-height: 120px !important;
-        transition: all 0.3s ease !important;
-        color: #e0e0ff !important;
-        -webkit-text-fill-color: #e0e0ff !important;
-        box-shadow: 0 0 5px rgba(123, 97, 255, 0.1) inset !important;
-    }
-
-    body .stApp .stTextArea textarea:focus {
-        border-color: #aa80ff !important;
-        box-shadow: 0 0 8px rgba(170, 128, 255, 0.6) !important;
-    }
-
-    /* Expander styling */
-    body .stApp .streamlit-expanderHeader {
-        font-weight: 500 !important;
-        color: #d4c0ff !important;
-        background-color: rgba(60, 50, 100, 0.6) !important;
-        border-radius: 8px !important;
-        padding: 0.75rem 1rem !important;
-        border-left: 3px solid #8e2de2 !important;
-    }
-
-    /* Slider styling */
-    body .stApp .stSlider > div[data-baseweb="slider"] {
-        margin-top: 2rem !important;
-        margin-bottom: 2rem !important;
-    }
-
-    body .stApp .stSlider [data-testid="stThumbValue"] {
-        background-color: #8e2de2 !important;
-        color: white !important;
-    }
-
-    body .stApp .stSlider [data-testid="stThumbValue"]::before {
-        border-bottom-color: #8e2de2 !important;
-    }
-
-    /* Style the track of the slider */
-    body .stApp .stSlider [role="slider"] {
-        background-color: #aa80ff !important;
-        box-shadow: 0 0 8px rgba(170, 128, 255, 0.8) !important;
-    }
-
-    /* Sidebar styling with solid background color */
-    body .stApp .css-1d391kg,
-    body .stApp .css-1lcbmhc {
-        background: linear-gradient(180deg, #302b63, #24243e) !important;
-        background-color: #302b63 !important; /* Fallback */
-        border-right: 1px solid rgba(123, 97, 255, 0.2) !important;
-    }
-    
-    /* Force sidebar text colors */
-    body .stApp .css-1d391kg p,
-    body .stApp .css-1lcbmhc p,
-    body .stApp .css-1d391kg span,
-    body .stApp .css-1lcbmhc span,
-    body .stApp .css-1d391kg div,
-    body .stApp .css-1lcbmhc div {
-        color: #e0e0ff !important;
-    }
-
-    /* Tab styling */
-    body .stApp .stTabs [data-baseweb="tab-list"] {
-        gap: 2px !important;
-        border-bottom: 1px solid rgba(123, 97, 255, 0.3) !important;
-        background-color: rgba(40, 40, 80, 0.6) !important;
-        border-radius: 8px 8px 0 0 !important;
-        padding: 0 16px !important;
-    }
-
-    body .stApp .stTabs [data-baseweb="tab"] {
-        height: 50px !important;
-        white-space: pre-wrap !important;
-        background-color: transparent !important;
-        border-radius: 8px 8px 0 0 !important;
-        gap: 1px !important;
-        padding: 10px 16px !important;
-        font-weight: 500 !important;
-        color: #aa80ff !important;
-        border: none !important;
-        transition: all 0.3s ease !important;
-    }
-
-    body .stApp .stTabs [aria-selected="true"] {
-        background-color: rgba(123, 97, 255, 0.2) !important;
-        color: #d4c0ff !important;
-        box-shadow: 0 -2px 8px rgba(123, 97, 255, 0.3) !important;
-    }
-
-    /* Cards for recent generations */
-    body .stApp .stExpander {
-        background-color: rgba(40, 40, 80, 0.6) !important;
-        border-radius: 8px !important;
-        border: 1px solid rgba(123, 97, 255, 0.3) !important;
-        margin-bottom: 1rem !important;
-        transition: all 0.3s ease !important;
-        backdrop-filter: blur(4px) !important;
-        -webkit-backdrop-filter: blur(4px) !important;
-    }
-
-    body .stApp .stExpander:hover {
-        box-shadow: 0 0 15px rgba(123, 97, 255, 0.3) !important;
-        border: 1px solid rgba(123, 97, 255, 0.5) !important;
-    }
-
-    /* Audio player styling */
-    body .stApp audio {
-        width: 100% !important;
-        margin-top: 15px !important;
-        margin-bottom: 15px !important;
-        border-radius: 8px !important;
-        background-color: rgba(40, 40, 80, 0.95) !important;
-        box-shadow: 0 0 10px rgba(123, 97, 255, 0.2) !important;
-    }
-
-    /* Custom audio player controls */
-    body .stApp audio::-webkit-media-controls-panel {
-        background-color: rgba(30, 30, 70, 0.8) !important;
-    }
-
-    body .stApp audio::-webkit-media-controls-current-time-display,
-    body .stApp audio::-webkit-media-controls-time-remaining-display {
-        color: #d4c0ff !important;
-    }
-
-    /* Download link styling */
-    body .stApp a[download] {
-        display: inline-block !important;
-        background: linear-gradient(135deg, #8e2de2, #4a00e0) !important;
-        background-color: #8e2de2 !important; /* Fallback */
-        color: white !important;
-        padding: 8px 16px !important;
-        text-decoration: none !important;
-        border-radius: 8px !important;
-        margin-top: 10px !important;
-        margin-bottom: 10px !important;
-        font-weight: 500 !important;
-        transition: all 0.3s ease !important;
-        box-shadow: 0 2px 10px rgba(123, 97, 255, 0.4) !important;
-        text-transform: uppercase !important;
-        font-size: 0.8rem !important;
-        letter-spacing: 1px !important;
-    }
-
-    body .stApp a[download]:hover {
-        background: linear-gradient(135deg, #9b4dff, #4a00e0) !important;
-        background-color: #9b4dff !important; /* Fallback */
-        transform: translateY(-2px) !important;
-        box-shadow: 0 4px 15px rgba(123, 97, 255, 0.6) !important;
-    }
-
-    /* File uploader styling */
-    body .stApp .stFileUploader div[data-testid="stFileUploader"] {
-        padding: 1.5rem !important;
-        border: 2px dashed rgba(123, 97, 255, 0.4) !important;
-        border-radius: 8px !important;
-        background-color: rgba(30, 30, 70, 0.4) !important;
-        transition: all 0.3s ease !important;
-    }
-
-    body .stApp .stFileUploader div[data-testid="stFileUploader"]:hover {
-        border-color: #aa80ff !important;
-        box-shadow: 0 0 15px rgba(123, 97, 255, 0.3) inset !important;
-    }
-
-    /* Select box styling */
-    body .stApp .stSelectbox > div[data-baseweb="select"] > div {
-        background-color: rgba(30, 30, 70, 0.6) !important;
-        border: 1px solid rgba(123, 97, 255, 0.4) !important;
-        border-radius: 8px !important;
-        transition: all 0.3s ease !important;
-        color: #e0e0ff !important;
-    }
-
-    body .stApp .stSelectbox > div[data-baseweb="select"] > div:hover {
-        border-color: #aa80ff !important;
-    }
-
-    /* Dropdown menu items */
-    body div[role="listbox"] {
-        background-color: rgba(30, 30, 70, 0.95) !important;
-        border: 1px solid rgba(123, 97, 255, 0.4) !important;
-        border-radius: 8px !important;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3) !important;
-        backdrop-filter: blur(8px) !important;
-        -webkit-backdrop-filter: blur(8px) !important;
-    }
-
-    body div[role="option"] {
-        color: #e0e0ff !important;
-    }
-
-    body div[role="option"]:hover {
-        background-color: rgba(123, 97, 255, 0.2) !important;
-    }
-
-    /* Force select option colors */
-    body .stApp select option {
-        background-color: #302b63 !important;
-        color: #e0e0ff !important;
-    }
-
-    /* Center elements for login form */
-    body .stApp .centered-content {
-        margin-top: 10vh !important;
-        padding: 2.5rem !important;
-        background-color: rgba(30, 30, 60, 0.9) !important;
-        border-radius: 16px !important;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
-        max-width: 400px !important;
-        margin-left: auto !important;
-        margin-right: auto !important;
-        backdrop-filter: blur(8px) !important;
-        -webkit-backdrop-filter: blur(8px) !important;
-        border: 1px solid rgba(123, 97, 255, 0.2) !important;
-        position: relative !important;
-        z-index: 2 !important;
-    }
-    
-    /* Admin panel specific styles */
-    body .stApp .admin-header {
-        color: #aa80ff !important;
-        margin-bottom: 1.5rem !important;
-        text-shadow: 0 0 10px rgba(170, 128, 255, 0.5) !important;
-    }
-    
-    /* Table styling - space themed */
-    body .stApp .stTable {
-        background-color: rgba(30, 30, 70, 0.6) !important;
-        border-radius: 8px !important;
-        overflow: hidden !important;
-    }
-
-    body .stApp .stTable th {
-        background-color: rgba(60, 50, 100, 0.7) !important;
-        color: #d4c0ff !important;
-        padding: 1rem !important;
-        text-align: left !important;
-        font-weight: 500 !important;
-    }
-
-    body .stApp .stTable td {
-        background-color: rgba(40, 40, 80, 0.5) !important;
-        color: #e0e0ff !important;
-        padding: 0.75rem 1rem !important;
-        border-bottom: 1px solid rgba(123, 97, 255, 0.2) !important;
-    }
-    
-    /* Checkbox styling */
-    body .stApp .stCheckbox [data-baseweb="checkbox"] {
-        margin-bottom: 1rem !important;
-    }
-
-    body .stApp .stCheckbox [data-baseweb="checkbox"] div[data-testid="stMarkdownContainer"] p {
-        font-size: 1rem !important;
-        color: #d4c0ff !important;
-    }
-    
-    /* Logo color modification to match the space theme */
-    body .stApp .logo-container svg circle,
-    body .stApp .logo-container svg path {
-        stroke: #aa80ff !important;
-    }
-
-    body .stApp .logo-container svg path[fill="#1E88E5"] {
-        fill: #8e2de2 !important;
-    }
-    
-    /* Force dark theme for elements that might inherit from browser */
-    body .stApp *::selection {
-        background-color: rgba(123, 97, 255, 0.3) !important;
-        color: #ffffff !important;
-    }
-    
-    /* Hide default streamlit elements more aggressively */
-    body #MainMenu,
-    body header #MainMenu,
-    body div[data-testid="stToolbar"] {
-        visibility: hidden !important;
-        display: none !important;
-    }
-    
-    body footer,
-    body .reportview-container footer {
-        visibility: hidden !important;
-        display: none !important;
-    }
-    
-    /* Custom scrollbar */
-    ::-webkit-scrollbar {
-        width: 8px !important;
-        height: 8px !important;
-    }
-
-    ::-webkit-scrollbar-track {
-        background: rgba(30, 30, 70, 0.3) !important;
-    }
-
-    ::-webkit-scrollbar-thumb {
-        background: linear-gradient(180deg, #8e2de2, #4a00e0) !important;
-        background-color: #8e2de2 !important; /* Fallback */
-        border-radius: 4px !important;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-        background: linear-gradient(180deg, #9b4dff, #4a00e0) !important;
-        background-color: #9b4dff !important; /* Fallback */
-    }
-    </style>
-    """
-
 # User authentication functions - adapted for cloud
 def init_authentication():
     """Initialize the authentication system"""
@@ -631,8 +125,198 @@ def delete_user(username, users, current_user):
 # Login page - with space theme
 def show_login_page():
     """Show the styled login page with space theme"""
-    # Apply theme-independent CSS
-    st.markdown(get_theme_independent_css(), unsafe_allow_html=True)
+    # Apply universal CSS at the beginning of the app
+    st.markdown("""
+    <style>
+    /* Global app styling */
+    .stApp {
+        font-family: 'Poppins', 'Inter', sans-serif !important;
+        background: linear-gradient(135deg, #0f0c29, #302b63, #24243e) !important;
+        color: #e0e0ff !important;
+    }
+
+    /* Custom background - creates a subtle starfield effect */
+    .stApp::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: 
+            radial-gradient(1px 1px at 25% 15%, white, transparent),
+            radial-gradient(1px 1px at 50% 35%, rgba(255, 255, 255, 0.8), transparent),
+            radial-gradient(1px 1px at 75% 50%, rgba(255, 255, 255, 0.9), transparent),
+            radial-gradient(2px 2px at 20% 65%, rgba(255, 255, 255, 0.7), transparent),
+            radial-gradient(2px 2px at 40% 80%, rgba(255, 255, 255, 0.8), transparent),
+            radial-gradient(1px 1px at 60% 25%, rgba(255, 255, 255, 0.9), transparent),
+            radial-gradient(1px 1px at 85% 85%, rgba(255, 255, 255, 0.8), transparent);
+        background-repeat: repeat;
+        background-size: 250px 250px;
+        opacity: 0.15;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    /* Main content container */
+    .block-container {
+        background-color: rgba(30, 30, 60, 0.7) !important;
+        border-radius: 16px !important;
+        backdrop-filter: blur(8px) !important;
+        -webkit-backdrop-filter: blur(8px) !important;
+        border: 1px solid rgba(123, 97, 255, 0.2) !important;
+        padding: 2rem !important;
+        margin-top: 1rem !important;
+        margin-bottom: 1rem !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    /* Title styling */
+    h1, h2, h3, h4, h5, h6 {
+        color: #aa80ff !important;
+        font-weight: 600 !important;
+        text-shadow: 0 0 10px rgba(170, 128, 255, 0.5) !important;
+        letter-spacing: 0.02em !important;
+    }
+
+    .login-title {
+        font-size: 2.2rem !important;
+        font-weight: 600 !important;
+        text-align: center !important;
+        margin-bottom: 1.5rem !important;
+        color: #aa80ff !important;
+        text-shadow: 0 0 15px rgba(170, 128, 255, 0.6) !important;
+    }
+
+    /* Logo styling */
+    .logo-container {
+        text-align: center !important;
+        margin-bottom: 2rem !important;
+        filter: drop-shadow(0 0 8px rgba(170, 128, 255, 0.7)) !important;
+    }
+
+    /* Input field styling - space-themed */
+    .stTextInput input,
+    [data-baseweb="input"] input,
+    .css-1n76uvr input,
+    input[type="text"],
+    input[type="password"] {
+        border-radius: 8px !important;
+        padding: 12px 16px !important;
+        background-color: rgba(30, 30, 70, 0.6) !important;
+        border: 1px solid rgba(123, 97, 255, 0.4) !important;
+        color: #e0e0ff !important;
+        width: 100% !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 0 5px rgba(123, 97, 255, 0.1) inset !important;
+    }
+
+    /* Focus states */
+    .stTextInput [data-baseweb="input"]:focus-within,
+    .stTextInput div[data-focused="true"],
+    [data-baseweb="input"]:focus-within {
+        border-color: #aa80ff !important;
+        box-shadow: 0 0 8px rgba(170, 128, 255, 0.6) !important;
+    }
+
+    /* Cosmic button styling */
+    .stButton > button,
+    button[kind="primaryFormSubmit"],
+    [data-testid="stFormSubmitButton"] > button,
+    form [data-testid="stFormSubmitButton"] button {
+        width: 100% !important;
+        background: linear-gradient(135deg, #8e2de2, #4a00e0) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 8px !important;
+        padding: 12px 0 !important;
+        font-weight: 500 !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        margin-top: 10px !important;
+        margin-bottom: 10px !important;
+        display: block !important;
+        text-align: center !important;
+        box-shadow: 0 4px 15px rgba(138, 43, 226, 0.4) !important;
+        text-transform: uppercase !important;
+        letter-spacing: 1px !important;
+        font-size: 0.9rem !important;
+    }
+
+    /* Hover styles for buttons */
+    .stButton > button:hover,
+    button[kind="primaryFormSubmit"]:hover,
+    [data-testid="stFormSubmitButton"] > button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 20px rgba(138, 43, 226, 0.6) !important;
+        background: linear-gradient(135deg, #9b4dff, #4a00e0) !important;
+    }
+
+    /* Error and success messages - space-themed */
+    .stAlert {
+        border-radius: 8px !important;
+        margin-top: 1.5rem !important;
+        padding: 1rem !important;
+        border: none !important;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2) !important;
+        background-color: rgba(40, 40, 80, 0.7) !important;
+        backdrop-filter: blur(4px) !important;
+        -webkit-backdrop-filter: blur(4px) !important;
+    }
+
+    /* Footer styling */
+    .footer {
+        text-align: center !important;
+        margin-top: 3rem !important;
+        font-size: 0.9rem !important;
+        color: rgba(224, 224, 255, 0.7) !important;
+        padding-bottom: 2rem !important;
+    }
+
+    /* Hide default streamlit elements */
+    #MainMenu {visibility: hidden !important;}
+    footer {visibility: hidden !important;}
+
+    /* Center the login form */
+    .centered-content {
+        margin-top: 10vh !important;
+        padding: 2.5rem !important;
+        background-color: rgba(30, 30, 60, 0.7) !important;
+        border-radius: 16px !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+        max-width: 400px !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        backdrop-filter: blur(8px) !important;
+        -webkit-backdrop-filter: blur(8px) !important;
+        border: 1px solid rgba(123, 97, 255, 0.2) !important;
+    }
+
+    /* Add a subtle cosmic pulse animation to the login button */
+    form [data-testid="stFormSubmitButton"] button {
+        animation: cosmicPulse 4s infinite alternate !important;
+    }
+
+    @keyframes cosmicPulse {
+        0% {
+            box-shadow: 0 4px 15px rgba(138, 43, 226, 0.4);
+        }
+        100% {
+            box-shadow: 0 4px 25px rgba(138, 43, 226, 0.7);
+        }
+    }
+
+    /* Logo color modification to match the space theme */
+    .logo-container svg circle,
+    .logo-container svg path {
+        stroke: #aa80ff !important;
+    }
+
+    .logo-container svg path[fill="#1E88E5"] {
+        fill: #8e2de2 !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
     
     # Initialize users
     if "users" not in st.session_state:
@@ -683,10 +367,56 @@ def show_login_page():
 
 def show_admin_panel():
     """Show the admin panel for user management"""
-    # Apply theme-independent CSS
-    st.markdown(get_theme_independent_css(), unsafe_allow_html=True)
-    
     st.title("Admin Control Panel")
+    
+    # Additional CSS for admin panel
+    st.markdown("""
+    <style>
+    /* Admin panel specific styles */
+    .admin-header {
+        color: #aa80ff !important;
+        margin-bottom: 1.5rem !important;
+        text-shadow: 0 0 10px rgba(170, 128, 255, 0.5) !important;
+    }
+    
+    /* Table styling - space themed */
+    .stTable {
+        background-color: rgba(30, 30, 70, 0.6) !important;
+        border-radius: 8px !important;
+        overflow: hidden !important;
+    }
+
+    .stTable th {
+        background-color: rgba(60, 50, 100, 0.7) !important;
+        color: #d4c0ff !important;
+        padding: 1rem !important;
+        text-align: left !important;
+        font-weight: 500 !important;
+    }
+
+    .stTable td {
+        background-color: rgba(40, 40, 80, 0.5) !important;
+        color: #e0e0ff !important;
+        padding: 0.75rem 1rem !important;
+        border-bottom: 1px solid rgba(123, 97, 255, 0.2) !important;
+    }
+    
+    /* Form spacing */
+    form {
+        margin-bottom: 2rem !important;
+    }
+    
+    /* Checkbox styling */
+    .stCheckbox [data-baseweb="checkbox"] {
+        margin-bottom: 1rem !important;
+    }
+
+    .stCheckbox [data-baseweb="checkbox"] div[data-testid="stMarkdownContainer"] p {
+        font-size: 1rem !important;
+        color: #d4c0ff !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
     
     # Go back to main app
     if st.button("Return to Voice Generator"):
@@ -767,8 +497,365 @@ def main():
         layout="wide"
     )
     
-    # Apply theme-independent CSS globally
-    st.markdown(get_theme_independent_css(), unsafe_allow_html=True)
+    # Apply global app CSS with space theme
+    st.markdown("""
+    <style>
+    /* Global app styling */
+    .stApp {
+        font-family: 'Poppins', 'Inter', sans-serif !important;
+        background: linear-gradient(135deg, #0f0c29, #302b63, #24243e) !important;
+        color: #e0e0ff !important;
+    }
+
+    /* Custom background - creates a subtle starfield effect */
+    .stApp::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: 
+            radial-gradient(1px 1px at 25% 15%, white, transparent),
+            radial-gradient(1px 1px at 50% 35%, rgba(255, 255, 255, 0.8), transparent),
+            radial-gradient(1px 1px at 75% 50%, rgba(255, 255, 255, 0.9), transparent),
+            radial-gradient(2px 2px at 20% 65%, rgba(255, 255, 255, 0.7), transparent),
+            radial-gradient(2px 2px at 40% 80%, rgba(255, 255, 255, 0.8), transparent),
+            radial-gradient(1px 1px at 60% 25%, rgba(255, 255, 255, 0.9), transparent),
+            radial-gradient(1px 1px at 85% 85%, rgba(255, 255, 255, 0.8), transparent);
+        background-repeat: repeat;
+        background-size: 250px 250px;
+        opacity: 0.15;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    /* Main content container */
+    .block-container {
+        background-color: rgba(30, 30, 60, 0.7) !important;
+        border-radius: 16px !important;
+        backdrop-filter: blur(8px) !important;
+        -webkit-backdrop-filter: blur(8px) !important;
+        border: 1px solid rgba(123, 97, 255, 0.2) !important;
+        padding: 2rem !important;
+        margin-top: 1rem !important;
+        margin-bottom: 1rem !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    /* Title styling */
+    h1, h2, h3, h4, h5, h6 {
+        color: #aa80ff !important;
+        font-weight: 600 !important;
+        text-shadow: 0 0 10px rgba(170, 128, 255, 0.5) !important;
+        letter-spacing: 0.02em !important;
+    }
+
+    /* Input field styling - space-themed */
+    .stTextInput input,
+    [data-baseweb="input"] input,
+    .css-1n76uvr input,
+    input[type="text"],
+    input[type="password"] {
+        border-radius: 8px !important;
+        padding: 12px 16px !important;
+        background-color: rgba(30, 30, 70, 0.6) !important;
+        border: 1px solid rgba(123, 97, 255, 0.4) !important;
+        color: #e0e0ff !important;
+        width: 100% !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 0 5px rgba(123, 97, 255, 0.1) inset !important;
+    }
+
+    /* Focus states */
+    .stTextInput [data-baseweb="input"]:focus-within,
+    .stTextInput div[data-focused="true"],
+    [data-baseweb="input"]:focus-within {
+        border-color: #aa80ff !important;
+        box-shadow: 0 0 8px rgba(170, 128, 255, 0.6) !important;
+    }
+
+    /* Cosmic button styling */
+    .stButton > button,
+    button[kind="primaryFormSubmit"],
+    [data-testid="stFormSubmitButton"] > button,
+    form [data-testid="stFormSubmitButton"] button {
+        width: 100% !important;
+        background: linear-gradient(135deg, #8e2de2, #4a00e0) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 8px !important;
+        padding: 12px 0 !important;
+        font-weight: 500 !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        margin-top: 10px !important;
+        margin-bottom: 10px !important;
+        display: block !important;
+        text-align: center !important;
+        box-shadow: 0 4px 15px rgba(138, 43, 226, 0.4) !important;
+        text-transform: uppercase !important;
+        letter-spacing: 1px !important;
+        font-size: 0.9rem !important;
+    }
+
+    /* Hover styles for buttons */
+    .stButton > button:hover,
+    button[kind="primaryFormSubmit"]:hover,
+    [data-testid="stFormSubmitButton"] > button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 20px rgba(138, 43, 226, 0.6) !important;
+        background: linear-gradient(135deg, #9b4dff, #4a00e0) !important;
+    }
+
+    /* Expander styling */
+    .streamlit-expanderHeader {
+        font-weight: 500 !important;
+        color: #d4c0ff !important;
+        background-color: rgba(60, 50, 100, 0.6) !important;
+        border-radius: 8px !important;
+        padding: 0.75rem 1rem !important;
+        border-left: 3px solid #8e2de2 !important;
+    }
+
+    /* Slider styling */
+    .stSlider > div[data-baseweb="slider"] {
+        margin-top: 2rem !important;
+        margin-bottom: 2rem !important;
+    }
+
+    .stSlider [data-testid="stThumbValue"] {
+        background-color: #8e2de2 !important;
+        color: white !important;
+    }
+
+    .stSlider [data-testid="stThumbValue"]::before {
+        border-bottom-color: #8e2de2 !important;
+    }
+
+    /* Style the track of the slider */
+    .stSlider [role="slider"] {
+        background-color: #aa80ff !important;
+        box-shadow: 0 0 8px rgba(170, 128, 255, 0.8) !important;
+    }
+
+    /* Sidebar styling - space-themed */
+    .css-1d391kg, .css-1lcbmhc {
+        background: linear-gradient(180deg, #302b63, #24243e) !important;
+        border-right: 1px solid rgba(123, 97, 255, 0.2) !important;
+    }
+
+    /* Tab styling */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 2px;
+        border-bottom: 1px solid rgba(123, 97, 255, 0.3);
+        background-color: rgba(40, 40, 80, 0.6) !important;
+        border-radius: 8px 8px 0 0 !important;
+        padding: 0 16px !important;
+    }
+
+    .stTabs [data-baseweb="tab"] {
+        height: 50px;
+        white-space: pre-wrap;
+        background-color: transparent;
+        border-radius: 8px 8px 0 0;
+        gap: 1px;
+        padding: 10px 16px;
+        font-weight: 500;
+        color: #aa80ff;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .stTabs [aria-selected="true"] {
+        background-color: rgba(123, 97, 255, 0.2) !important;
+        color: #d4c0ff !important;
+        box-shadow: 0 -2px 8px rgba(123, 97, 255, 0.3) !important;
+    }
+
+    /* Cards for recent generations */
+    .stExpander {
+        background-color: rgba(40, 40, 80, 0.6) !important;
+        border-radius: 8px !important;
+        border: 1px solid rgba(123, 97, 255, 0.3) !important;
+        margin-bottom: 1rem !important;
+        transition: all 0.3s ease !important;
+        backdrop-filter: blur(4px) !important;
+        -webkit-backdrop-filter: blur(4px) !important;
+    }
+
+    .stExpander:hover {
+        box-shadow: 0 0 15px rgba(123, 97, 255, 0.3) !important;
+        border: 1px solid rgba(123, 97, 255, 0.5) !important;
+    }
+
+    /* Audio player styling */
+    audio {
+        width: 100% !important;
+        margin-top: 15px !important;
+        margin-bottom: 15px !important;
+        border-radius: 8px !important;
+        background-color: rgba(40, 40, 80, 0.6) !important;
+        box-shadow: 0 0 10px rgba(123, 97, 255, 0.2) !important;
+    }
+
+    /* Custom audio player controls */
+    audio::-webkit-media-controls-panel {
+        background-color: rgba(30, 30, 70, 0.8) !important;
+    }
+
+    audio::-webkit-media-controls-current-time-display,
+    audio::-webkit-media-controls-time-remaining-display {
+        color: #d4c0ff !important;
+    }
+
+    /* Download link styling */
+    a[download] {
+        display: inline-block !important;
+        background: linear-gradient(135deg, #8e2de2, #4a00e0) !important;
+        color: white !important;
+        padding: 8px 16px !important;
+        text-decoration: none !important;
+        border-radius: 8px !important;
+        margin-top: 10px !important;
+        margin-bottom: 10px !important;
+        font-weight: 500 !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 2px 10px rgba(123, 97, 255, 0.4) !important;
+        text-transform: uppercase !important;
+        font-size: 0.8rem !important;
+        letter-spacing: 1px !important;
+    }
+
+    a[download]:hover {
+        background: linear-gradient(135deg, #9b4dff, #4a00e0) !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 4px 15px rgba(123, 97, 255, 0.6) !important;
+    }
+
+    /* Error and success messages - space-themed */
+    .stAlert {
+        border-radius: 8px !important;
+        margin-top: 1.5rem !important;
+        padding: 1rem !important;
+        border: none !important;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2) !important;
+        background-color: rgba(40, 40, 80, 0.7) !important;
+        backdrop-filter: blur(4px) !important;
+        -webkit-backdrop-filter: blur(4px) !important;
+    }
+
+    /* Text area styling */
+    .stTextArea textarea {
+        border-radius: 8px !important;
+        border: 1px solid rgba(123, 97, 255, 0.4) !important;
+        background-color: rgba(30, 30, 70, 0.6) !important;
+        padding: 12px 16px !important;
+        min-height: 120px !important;
+        transition: all 0.3s ease !important;
+        color: #e0e0ff !important;
+        box-shadow: 0 0 5px rgba(123, 97, 255, 0.1) inset !important;
+    }
+
+    .stTextArea textarea:focus {
+        border-color: #aa80ff !important;
+        box-shadow: 0 0 8px rgba(170, 128, 255, 0.6) !important;
+    }
+
+    /* File uploader styling */
+    .stFileUploader div[data-testid="stFileUploader"] {
+        padding: 1.5rem !important;
+        border: 2px dashed rgba(123, 97, 255, 0.4) !important;
+        border-radius: 8px !important;
+        background-color: rgba(30, 30, 70, 0.4) !important;
+        transition: all 0.3s ease !important;
+    }
+
+    .stFileUploader div[data-testid="stFileUploader"]:hover {
+        border-color: #aa80ff !important;
+        box-shadow: 0 0 15px rgba(123, 97, 255, 0.3) inset !important;
+    }
+
+    /* Select box styling */
+    .stSelectbox > div[data-baseweb="select"] > div {
+        background-color: rgba(30, 30, 70, 0.6) !important;
+        border: 1px solid rgba(123, 97, 255, 0.4) !important;
+        border-radius: 8px !important;
+        transition: all 0.3s ease !important;
+        color: #e0e0ff !important;
+    }
+
+    .stSelectbox > div[data-baseweb="select"] > div:hover {
+        border-color: #aa80ff !important;
+    }
+
+    /* Dropdown menu items */
+    div[role="listbox"] {
+        background-color: rgba(30, 30, 70, 0.95) !important;
+        border: 1px solid rgba(123, 97, 255, 0.4) !important;
+        border-radius: 8px !important;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3) !important;
+        backdrop-filter: blur(8px) !important;
+        -webkit-backdrop-filter: blur(8px) !important;
+    }
+
+    div[role="option"] {
+        color: #e0e0ff !important;
+    }
+
+    div[role="option"]:hover {
+        background-color: rgba(123, 97, 255, 0.2) !important;
+    }
+
+    /* Hide default streamlit elements */
+    #MainMenu {visibility: hidden !important;}
+    footer {visibility: hidden !important;}
+
+    /* Cosmic glow effect for the app title */
+    .stApp h1:first-child {
+        position: relative;
+        display: inline-block;
+    }
+
+    .stApp h1:first-child::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 100%;
+        height: 100%;
+        transform: translate(-50%, -50%);
+        z-index: -1;
+        filter: blur(20px);
+        background: radial-gradient(circle, rgba(170, 128, 255, 0.6) 0%, rgba(138, 43, 226, 0) 70%);
+    }
+
+    /* Label coloring */
+    label {
+        color: #d4c0ff !important;
+        font-weight: 500 !important;
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: rgba(30, 30, 70, 0.3);
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, #8e2de2, #4a00e0);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(180deg, #9b4dff, #4a00e0);
+    }
+    </style>
+    """, unsafe_allow_html=True)
     
     # Check if user is logged in
     if "logged_in" not in st.session_state or not st.session_state.logged_in:
