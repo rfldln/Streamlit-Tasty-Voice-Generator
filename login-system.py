@@ -553,17 +553,45 @@ def main():
         st.markdown("---")
         
         st.header("Model Selection")
-        model_options = {
+        # Separate models for TTS and voice conversion
+        tts_model_options = {
             "Multilingual v2 (Enhanced)": "eleven_multilingual_v2",
             "Monolingual v1 (English only)": "eleven_monolingual_v1",
             "Multilingual v1 (Multiple languages)": "eleven_multilingual_v1",
             "Turbo (Faster generation)": "eleven_turbo_v2"
         }
-        selected_model = st.selectbox(
-            "Select Model", 
-            options=list(model_options.keys())
+        
+        voice_conversion_model_options = {
+            "Voice Conversion v1": "eleven_voice_conversion_v1",
+            "Voice Conversion v2 (Beta)": "eleven_voice_conversion_v2"
+        }
+        
+        # Store both model selections in session state
+        if "tts_model" not in st.session_state:
+            st.session_state.tts_model = list(tts_model_options.keys())[0]
+        
+        if "vc_model" not in st.session_state:
+            st.session_state.vc_model = list(voice_conversion_model_options.keys())[0]
+        
+        # TTS model selection
+        selected_tts_model = st.selectbox(
+            "Select Text-to-Speech Model", 
+            options=list(tts_model_options.keys()),
+            key="tts_model_select",
+            index=list(tts_model_options.keys()).index(st.session_state.tts_model)
         )
-        selected_model_id = model_options[selected_model]
+        st.session_state.tts_model = selected_tts_model
+        selected_tts_model_id = tts_model_options[selected_tts_model]
+        
+        # Voice conversion model selection
+        selected_vc_model = st.selectbox(
+            "Select Voice Conversion Model", 
+            options=list(voice_conversion_model_options.keys()),
+            key="vc_model_select",
+            index=list(voice_conversion_model_options.keys()).index(st.session_state.vc_model)
+        )
+        st.session_state.vc_model = selected_vc_model
+        selected_vc_model_id = voice_conversion_model_options[selected_vc_model]
         
         st.header("Voice Settings")
         stability = st.slider("Stability", min_value=0.0, max_value=1.0, value=0.5, step=0.01,
@@ -633,8 +661,17 @@ def main():
             "xi-api-key": api_key
         }
         
+        # Handle different audio formats
+        content_type = "audio/mpeg"
+        if isinstance(audio_data, bytes):
+            # Try to detect the content type based on first few bytes
+            if audio_data.startswith(b'RIFF'):
+                content_type = "audio/wav"
+            elif audio_data.startswith(b'ID3') or audio_data.startswith(b'\xff\xfb'):
+                content_type = "audio/mpeg"
+            
         files = {
-            "audio": ("input.mp3", audio_data, "audio/mpeg")
+            "audio": ("input_audio", audio_data, content_type)
         }
         
         data = {
@@ -649,6 +686,7 @@ def main():
         }
         
         try:
+            st.info(f"Sending request to ElevenLabs with model: {model_id}")
             response = requests.post(url, headers=headers, files=files, data=data)
             response.raise_for_status()
             return response.content
@@ -714,7 +752,7 @@ def main():
                         api_key, 
                         selected_voice_id, 
                         text_input, 
-                        selected_model_id,
+                        selected_tts_model_id,
                         voice_settings
                     )
                     
@@ -735,7 +773,7 @@ def main():
                         st.session_state[user_gen_key].append({
                             "text": text_input[:50] + "..." if len(text_input) > 50 else text_input,
                             "voice": selected_voice_name,
-                            "model": selected_model,
+                            "model": selected_tts_model,
                             "audio_data": audio_data,
                             "type": "tts"
                         })
@@ -799,12 +837,12 @@ def main():
                     st.subheader("Original Audio")
                     st.audio(audio_bytes, format=f"audio/{uploaded_file.type.split('/')[1]}")
                     
-                    # Convert voice
+                    # Convert voice using the specific voice conversion model
                     converted_audio = convert_voice(
                         api_key,
                         target_voice_id,
                         audio_bytes,
-                        selected_model_id
+                        selected_vc_model_id
                     )
                     
                     if converted_audio:
@@ -825,7 +863,7 @@ def main():
                         st.session_state[user_gen_key].append({
                             "text": f"Conversion to {target_voice_name}",
                             "voice": target_voice_name,
-                            "model": selected_model,
+                            "model": selected_vc_model,
                             "audio_data": converted_audio,
                             "type": "voice_conversion"
                         })
