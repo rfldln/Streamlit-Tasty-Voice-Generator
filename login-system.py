@@ -327,6 +327,30 @@ def show_login_page():
     .logo-container svg path[fill="#1E88E5"] {
         fill: #8e2de2 !important;
     }
+    
+    /* Remove "press enter to submit" tooltips */
+    input::-webkit-credentials-auto-fill-button,
+    input::-webkit-contacts-auto-fill-button,
+    input::-webkit-calendar-picker-indicator,
+    input::-webkit-validation-bubble-message,
+    input::-webkit-inner-spin-button {
+        display: none !important;
+        visibility: hidden !important;
+    }
+    
+    /* Additional methods to hide tooltips */
+    form input {
+        appearance: none !important;
+        -moz-appearance: none !important;
+        -webkit-appearance: none !important;
+    }
+    
+    /* Hide all browser tooltips */
+    ::-webkit-validation-bubble-message, 
+    ::-webkit-validation-bubble-icon, 
+    ::-webkit-validation-bubble-arrow {
+        display: none !important;
+    }
     </style>
     """, unsafe_allow_html=True)
     
