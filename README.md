@@ -16,16 +16,22 @@ A Streamlit app that uses ElevenLabs API to generate realistic AI voices.
 ### Local Development
 
 1. Clone this repository
-2. Install dependencies:
+2. cd to the repository
+3. Create a venv and activate it
+   ```bash
+   python -m venv venv
+   venv/Scripts/activate
+   ```
+5. Install dependencies:
    ```bash
    pip install -r requirements.txt
    ```
-3. Create a `.env` file with your ElevenLabs API key:
+6. Create a `.env` file with your ElevenLabs API key:
    ```
    ELEVENLABS_API_KEY=your_api_key_here
    ADMIN_PASSWORD=your_admin_password
    ```
-4. Run the app:
+7. Run the app:
    ```bash
    streamlit run app.py
    ```
