@@ -348,7 +348,7 @@ def show_login_page():
             username = st.text_input("Username")
             password = st.text_input("Password", type="password")
             
-            submit_button = st.form_submit_button("ENTER THE COSMOS", use_container_width=True)
+            submit_button = st.form_submit_button("Sign in", use_container_width=True)
             
             if submit_button:
                 if login_user(username, password, st.session_state.users):
