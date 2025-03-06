@@ -953,15 +953,8 @@ def main():
         
         # List of voice IDs you want to include in your application
         selected_voice_ids = [
-            "21m00Tcm4TlvDq8ikWAM",  # Rachel
-            "AZnzlk1XvdvUeBnXmlld",  # Domi
-            "EXAVITQu4vr4xnSDxMaL",  # Bella
-            "MF3mGyEYCl7XYWbV9V6O",  # Adam
-            "TxGEqnHWrfWFTfGW9XjX",  # Josh
-            "VR6AewLTigWG4xSOukaG",  # Arnold
-            "pNInz6obpgDQGcFmaJgB",  # Adam
-            "yoZ06aMxZJJ28mfd3POQ"   # Sam
-            # Add more voice IDs as needed
+            "ZXcn1MHG7yBUBie2UO9w",  # Ti
+            "XtrZA2v40BnLkNsO4MbN",  # Bri
         ]
         
         try:
