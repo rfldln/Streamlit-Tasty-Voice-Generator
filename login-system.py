@@ -1207,7 +1207,7 @@ def main():
         
         # Recent conversions section
         st.markdown("---")
-        st.header("Transmutation Archives")
+        st.header("Recent Generations")
         
         # Get user-specific generations for voice conversions
         user_gen_key = f"recent_generations_{st.session_state.username}"
@@ -1222,9 +1222,9 @@ def main():
                         st.audio(gen["audio_data"], format="audio/mp3")
                         st.markdown(get_audio_download_link(gen["audio_data"], f"{gen['voice']}_{i}.mp3"), unsafe_allow_html=True)
             else:
-                st.info("Your voice transmutations will appear here.")
+                st.info("Your voice recordings will appear here.")
         else:
-            st.info("Your voice transmutations will appear here.")
+            st.info("Your voice recordings will appear here.")
         
         # Tips for voice conversion
         with st.expander("Tips for better voice conversion"):
