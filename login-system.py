@@ -553,44 +553,41 @@ def main():
         st.markdown("---")
         
         st.header("Model Selection")
-        # Separate models for TTS and voice conversion
-        tts_model_options = {
-            "Multilingual v2 (Enhanced)": "eleven_multilingual_v2",
-            "Monolingual v1 (English only)": "eleven_monolingual_v1",
-            "Multilingual v1 (Multiple languages)": "eleven_multilingual_v1",
-            "Turbo (Faster generation)": "eleven_turbo_v2"
-        }
-        
-        voice_conversion_model_options = {
-            "Voice Conversion Model": "eleven_english_sts_v2"
-        }
         
         # Store both model selections in session state
-        if "tts_model" not in st.session_state:
-            st.session_state.tts_model = list(tts_model_options.keys())[0]
+        if "tts_model" not in st.session_state or st.session_state.tts_model not in tts_model_options:
+            st.session_state.tts_model = list(tts_model_options.keys())[0] if tts_model_options else "Default TTS"
         
-        if "vc_model" not in st.session_state:
-            st.session_state.vc_model = list(voice_conversion_model_options.keys())[0]
+        if "vc_model" not in st.session_state or st.session_state.vc_model not in voice_conversion_model_options:
+            st.session_state.vc_model = list(voice_conversion_model_options.keys())[0] if voice_conversion_model_options else "Default Voice Conversion"
         
         # TTS model selection
         selected_tts_model = st.selectbox(
             "Select Text-to-Speech Model", 
             options=list(tts_model_options.keys()),
             key="tts_model_select",
-            index=list(tts_model_options.keys()).index(st.session_state.tts_model)
+            index=list(tts_model_options.keys()).index(st.session_state.tts_model) if st.session_state.tts_model in tts_model_options else 0
         )
         st.session_state.tts_model = selected_tts_model
         selected_tts_model_id = tts_model_options[selected_tts_model]
         
-        # Voice conversion model selection
-        selected_vc_model = st.selectbox(
-            "Select Voice Conversion Model", 
-            options=list(voice_conversion_model_options.keys()),
-            key="vc_model_select",
-            index=list(voice_conversion_model_options.keys()).index(st.session_state.vc_model)
-        )
-        st.session_state.vc_model = selected_vc_model
-        selected_vc_model_id = voice_conversion_model_options[selected_vc_model]
+        # Voice conversion model selection with info on supported models
+        st.subheader("Voice Conversion Models")
+        if len(voice_conversion_model_options) > 0:
+            st.success(f"Found {len(voice_conversion_model_options)} models that support voice conversion.")
+            
+            selected_vc_model = st.selectbox(
+                "Select Voice Conversion Model", 
+                options=list(voice_conversion_model_options.keys()),
+                key="vc_model_select",
+                index=list(voice_conversion_model_options.keys()).index(st.session_state.vc_model) if st.session_state.vc_model in voice_conversion_model_options else 0
+            )
+            st.session_state.vc_model = selected_vc_model
+            selected_vc_model_id = voice_conversion_model_options[selected_vc_model]
+        else:
+            st.warning("No models supporting voice conversion were found. Using default model.")
+            selected_vc_model = "Default Voice Conversion"
+            selected_vc_model_id = "eleven_english_sts_v2"
         
         st.header("Voice Settings")
         stability = st.slider("Stability", min_value=0.0, max_value=1.0, value=0.5, step=0.01,
@@ -624,6 +621,52 @@ def main():
         except requests.exceptions.RequestException as e:
             st.error(f"Error fetching voices: {str(e)}")
             return {"voices": []}
+    
+    # Function to get available models
+    @st.cache_data(ttl=3600)  # Cache for one hour
+    def get_models(api_key):
+        url = "https://api.elevenlabs.io/v1/models"
+        headers = {
+            "Accept": "application/json",
+            "xi-api-key": api_key
+        }
+        try:
+            response = requests.get(url, headers=headers)
+            response.raise_for_status()
+            models_data = response.json()
+            
+            # Create dictionaries for TTS and voice conversion models
+            tts_models = {}
+            vc_models = {}
+            
+            for model in models_data:
+                model_id = model.get("model_id")
+                model_name = model.get("name")
+                
+                # Check model capabilities
+                can_do_tts = False
+                can_do_voice_conversion = False
+                
+                if "can_do_text_to_speech" in model and model["can_do_text_to_speech"]:
+                    can_do_tts = True
+                
+                if "can_do_voice_conversion" in model and model["can_do_voice_conversion"]:
+                    can_do_voice_conversion = True
+                
+                # Add to appropriate dictionary with description
+                if can_do_tts:
+                    description = model.get("description", "")
+                    tts_models[f"{model_name}"] = model_id
+                
+                if can_do_voice_conversion:
+                    description = model.get("description", "")
+                    vc_models[f"{model_name}"] = model_id
+            
+            return {"tts_models": tts_models, "vc_models": vc_models}
+        except requests.exceptions.RequestException as e:
+            st.error(f"Error fetching models: {str(e)}")
+            return {"tts_models": {"Default TTS": "eleven_monolingual_v1"}, 
+                    "vc_models": {"Default Voice Conversion": "eleven_english_sts_v2"}}
 
     # Function to generate voice
     def generate_voice(api_key, voice_id, text, model_id, voice_settings):
@@ -714,6 +757,15 @@ def main():
 
     # Extract voice options for dropdown
     voice_options = {voice["name"]: voice["voice_id"] for voice in voices_data["voices"]}
+    
+    # Get available models
+    models_data = get_models(api_key)
+    tts_model_options = models_data["tts_models"]
+    voice_conversion_model_options = models_data["vc_models"]
+    
+    # In case no voice conversion models are available, use a default
+    if not voice_conversion_model_options:
+        voice_conversion_model_options = {"Default Voice Conversion": "eleven_english_sts_v2"}
 
     # App title
     st.title("Tasty Voice Generator")
