@@ -562,8 +562,7 @@ def main():
         }
         
         voice_conversion_model_options = {
-            "Voice Conversion v1": "eleven_voice_conversion_v1",
-            "Voice Conversion v2 (Beta)": "eleven_voice_conversion_v2"
+            "Voice Conversion Model": "eleven_english_sts_v2"
         }
         
         # Store both model selections in session state
