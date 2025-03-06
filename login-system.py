@@ -194,60 +194,59 @@ def show_login_page():
     
     # Use full width with appropriate margins
     st.markdown('<div style="max-width: 450px; margin: 0 auto;">', unsafe_allow_html=True)
-        
-        # Create a login container div
-        st.markdown('<div class="login-container">', unsafe_allow_html=True)
-        
-        # Logo - using bottle icon to match the screenshot
-        st.markdown('''
-        <div class="logo-container">
-            <svg width="50" height="50" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="12" cy="12" r="12" fill="#2196F3"/>
-                <path d="M8 8.5C8 7.67157 8.67157 7 9.5 7H14.5C15.3284 7 16 7.67157 16 8.5V15.5C16 16.3284 15.3284 17 14.5 17H9.5C8.67157 17 8 16.3284 8 15.5V8.5Z" fill="white"/>
-                <path d="M12 7V5" stroke="white" stroke-width="2" stroke-linecap="round"/>
-                <path d="M10 5H14" stroke="white" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-        </div>
-        ''', unsafe_allow_html=True)
-        
-        # Title
-        st.markdown('<h1 class="login-title">Tasty Voice Generator</h1>', unsafe_allow_html=True)
+    
+    # Create a login container div
+    st.markdown('<div class="login-container">', unsafe_allow_html=True)
+    
+    # Logo - using bottle icon to match the screenshot
+    st.markdown('''
+    <div class="logo-container">
+        <svg width="50" height="50" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="12" fill="#2196F3"/>
+            <path d="M8 8.5C8 7.67157 8.67157 7 9.5 7H14.5C15.3284 7 16 7.67157 16 8.5V15.5C16 16.3284 15.3284 17 14.5 17H9.5C8.67157 17 8 16.3284 8 15.5V8.5Z" fill="white"/>
+            <path d="M12 7V5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            <path d="M10 5H14" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+    </div>
+    ''', unsafe_allow_html=True)
+    
+    # Title
+    st.markdown('<h1 class="login-title">Tasty Voice Generator</h1>', unsafe_allow_html=True)
 
-        # Use a form for Enter key functionality with styled button
-        with st.form("login_form", clear_on_submit=False):
-            username = st.text_input("Username")
-            password = st.text_input("Password", type="password")
-            
-            # Additional inline CSS specifically for the form submit button
-            st.markdown("""
-            <style>
-            /* Additional specific styling for THIS form's submit button */
-            form[data-testid="stForm"] [data-testid="stFormSubmitButton"] > button {
-                background-color: #1E88E5 !important;
-                color: white !important;
-                border: none !important;
-                border-radius: 5px !important;
-                padding: 10px 0 !important;
-                font-weight: 500 !important;
-                width: 100% !important;
-                display: block !important;
-            }
-            </style>
-            """, unsafe_allow_html=True)
-            
-            submit_button = st.form_submit_button("Sign In", use_container_width=True)
-            
-            if submit_button:
-                if login_user(username, password, st.session_state.users):
-                    st.session_state.logged_in = True
-                    st.session_state.username = username
-                    st.session_state.is_admin = st.session_state.users[username]["is_admin"]
-                    st.success("Login successful! Redirecting...")
-                    time.sleep(1)  # Short delay for better UX
-                    st.rerun()
-                else:
-                    st.error("Invalid username or password")
+    # Use a form for Enter key functionality with styled button
+    with st.form("login_form", clear_on_submit=False):
+        username = st.text_input("Username")
+        password = st.text_input("Password", type="password")
         
+        # Custom CSS for the submit button using HTML
+        st.markdown("""
+        <style>
+        /* Additional specific styling for THIS form's submit button */
+        [data-testid="stFormSubmitButton"] button {
+            background-color: #2196F3 !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 4px !important;
+            padding: 10px 0 !important;
+            font-weight: 500 !important;
+            width: 100% !important;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+        
+        submit_button = st.form_submit_button("Sign In", use_container_width=True)
+        
+        if submit_button:
+            if login_user(username, password, st.session_state.users):
+                st.session_state.logged_in = True
+                st.session_state.username = username
+                st.session_state.is_admin = st.session_state.users[username]["is_admin"]
+                st.success("Login successful! Redirecting...")
+                time.sleep(1)  # Short delay for better UX
+                st.rerun()
+            else:
+                st.error("Invalid username or password")
+    
     # Close the login container and the centered div
     st.markdown('</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
