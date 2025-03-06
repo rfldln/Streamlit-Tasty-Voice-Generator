@@ -122,156 +122,146 @@ def delete_user(username, users, current_user):
     save_users(users)
     return True, f"User '{username}' deleted successfully"
 
-# Login page - enhanced with more spacious, fluid design
+# Login page - enhanced with more aggressive styling
 def show_login_page():
-    """Show the styled login page with spacious, fluid design"""
+    """Show the styled login page with more robust CSS"""
     # Apply universal CSS at the beginning of the app
     st.markdown("""
     <style>
-    /* Global app styling */
-    .stApp {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 2rem;
-    }
-
-    /* Improve spacing throughout the app */
-    .block-container {
-        padding-top: 2rem;
-        padding-bottom: 2rem;
-        max-width: 100%;
-    }
-
-    /* Title styling - cleaner and more minimal */
-    h1, h2, h3, h4, h5, h6 {
-        color: #333 !important;
-        font-weight: 500 !important;
-        letter-spacing: -0.01em;
-        margin-bottom: 1.5rem !important;
-    }
-
-    .login-title {
-        font-size: 2rem !important;
-        font-weight: 500 !important;
-        text-align: center !important;
-        margin-bottom: 1.5rem !important;
-        color: #333 !important;
-    }
-
-    /* Logo styling */
-    .logo-container {
-        text-align: center !important;
-        margin-bottom: 2rem !important;
-    }
-
-    /* Input field styling - cleaner and more minimal */
-    .stTextInput input,
-    [data-baseweb="input"] input,
-    .css-1n76uvr input,
-    input[type="text"],
-    input[type="password"] {
-        border-radius: 8px !important;
-        padding: 12px 16px !important;
-        background-color: #f8f9fa !important;
-        border: 1px solid #eaecef !important;
-        width: 100% !important;
-        transition: all 0.2s ease !important;
-    }
-
-    /* Focus states */
-    .stTextInput [data-baseweb="input"]:focus-within,
-    .stTextInput div[data-focused="true"],
-    [data-baseweb="input"]:focus-within {
-        border-color: #5B86E5 !important;
-        box-shadow: 0 0 0 2px rgba(91, 134, 229, 0.2) !important;
-    }
-
-    /* Softer button styling */
-    .stButton > button,
-    button[kind="primaryFormSubmit"],
-    [data-testid="stFormSubmitButton"] > button,
-    form [data-testid="stFormSubmitButton"] button {
-        width: 100% !important;
-        background-color: #5B86E5 !important;
-        background-image: linear-gradient(135deg, #5B86E5, #36D1DC) !important;
-        color: white !important;
-        border: none !important;
-        border-radius: 8px !important;
-        padding: 12px 0 !important;
-        font-weight: 500 !important;
-        cursor: pointer !important;
-        transition: all 0.2s ease !important;
-        margin-top: 10px !important;
-        margin-bottom: 10px !important;
-        display: block !important;
-        text-align: center !important;
-        box-shadow: 0 4px 6px rgba(91, 134, 229, 0.1) !important;
-    }
-
-    /* Hover styles for buttons */
-    .stButton > button:hover,
-    button[kind="primaryFormSubmit"]:hover,
-    [data-testid="stFormSubmitButton"] > button:hover {
-        transform: translateY(-2px) !important;
-        box-shadow: 0 6px 12px rgba(91, 134, 229, 0.15) !important;
-    }
-
-    /* Error and success messages - more minimal */
-    .stAlert {
-        border-radius: 8px !important;
-        margin-top: 1.5rem !important;
-        padding: 1rem !important;
-        border: none !important;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05) !important;
-    }
-
-    /* Footer styling */
-    .footer {
-        text-align: center !important;
-        margin-top: 3rem !important;
-        font-size: 0.9rem !important;
-        color: #999 !important;
-        padding-bottom: 2rem !important;
-    }
-
-    /* Hide default streamlit elements */
-    #MainMenu {visibility: hidden !important;}
-    footer {visibility: hidden !important;}
-
-    /* Center the login form vertically */
-    .centered-content {
-        margin-top: 10vh !important;
-        padding: 2rem !important;
-        background-color: white !important;
-        border-radius: 16px !important;
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05) !important;
-        max-width: 400px !important;
-        margin-left: auto !important;
-        margin-right: auto !important;
-    }
-
-    /* Fluid container width based on screen size */
-    @media (min-width: 992px) {
-        .block-container {
-            padding-left: 5rem;
-            padding-right: 5rem;
+        /* Reset some basic elements */
+        * {
+            box-sizing: border-box;
         }
-    }
-
-    @media (max-width: 991px) {
-        .block-container {
-            padding-left: 2rem;
-            padding-right: 2rem;
+        
+        /* Title styling */
+        .login-title {
+            font-size: 2rem !important;
+            font-weight: 600 !important;
+            text-align: center !important;
+            margin-bottom: 1rem !important;
+            color: #1E88E5 !important;
         }
-    }
-
-    @media (max-width: 767px) {
-        .block-container {
-            padding-left: 1rem;
-            padding-right: 1rem;
+        
+        /* Logo styling */
+        .logo-container {
+            text-align: center !important;
+            margin-bottom: 1rem !important;
         }
-    }
+        
+        /* More aggressive styling for input fields with multiple selectors */
+        .stTextInput input,
+        [data-baseweb="input"] input,
+        .css-1n76uvr input,
+        input[type="text"],
+        input[type="password"] {
+            border-radius: 5px !important;
+            padding: 10px 15px !important;
+            background-color: #262730 !important;
+            width: 100% !important;
+        }
+        
+        /* Targeted focus states */
+        .stTextInput [data-baseweb="input"]:focus-within,
+        .stTextInput div[data-focused="true"],
+        [data-baseweb="input"]:focus-within {
+            border-color: #1E88E5 !important;
+            box-shadow: 0 0 0 1px #1E88E5 !important;
+        }
+        
+        /* Additional targeting to override focus styling */
+        .stTextInput div[data-focused="true"] > div,
+        [data-baseweb="input"]:focus-within > div {
+            border-color: #1E88E5 !important;
+            box-shadow: none !important;
+        }
+        
+        /* Default border color */
+        .stTextInput div,
+        [data-baseweb="input"] div {
+            border-color: transparent !important;
+        }
+        
+        /* Label styling with !important */
+        .stTextInput > label,
+        [data-baseweb="input"] + label {
+            font-weight: 500 !important;
+            color: #424242 !important;
+        }
+        
+        /* Ultra aggressive button styling to override all Streamlit defaults */
+        div[data-testid="stForm"] .stButton > button,
+        .stButton > button,
+        button[kind="primaryFormSubmit"],
+        [data-testid="stFormSubmitButton"] > button,
+        form [data-testid="stFormSubmitButton"] button,
+        button.css-1x8cf1d,
+        button.css-7ym5gk,
+        button.css-13q3t3r,
+        button.css-1vgnxcy {
+            width: 100% !important;
+            background-color: #1E88E5 !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 5px !important;
+            padding: 10px 0 !important;
+            font-weight: 500 !important;
+            cursor: pointer !important;
+            transition: background-color 0.3s !important;
+            margin-top: 5px !important;
+            margin-bottom: 5px !important;
+            display: block !important;
+            text-align: center !important;
+            box-shadow: none !important;
+        }
+        
+        /* Hover styles for all buttons with ultra-specific selectors */
+        .stButton > button:hover,
+        button[kind="primaryFormSubmit"]:hover,
+        [data-testid="stFormSubmitButton"] > button:hover,
+        button.css-1x8cf1d:hover,
+        button.css-7ym5gk:hover,
+        button.css-13q3t3r:hover,
+        button.css-1vgnxcy:hover {
+            background-color: #154b82 !important;
+            color: white !important;
+            border: none !important;
+        }
+        
+        /* Error and success messages */
+        .stAlert {
+            text-align: center !important;
+            border-radius: 5px !important;
+            margin-top: 1.5rem !important;
+        }
+        
+        /* Footer styling */
+        .footer {
+            text-align: center !important;
+            margin-top: 2.5rem !important;
+            font-size: 0.8rem !important;
+            color: #757575 !important;
+        }
+        
+        /* Hide default streamlit elements */
+        #MainMenu {visibility: hidden !important;}
+        footer {visibility: hidden !important;}
+        
+        /* Center the login form vertically */
+        .centered-content {
+            margin-top: 10vh !important;
+        }
+        
+        /* Ensure form widgets display properly */
+        .stForm > div {
+            width: 100% !important;
+        }
+        
+        /* Cursor pointer for selectable items */
+        div[data-baseweb="select"],
+        div[data-baseweb="select"] > div,
+        li[role="option"] {
+            cursor: pointer !important;
+        }
     </style>
     """, unsafe_allow_html=True)
     
@@ -289,10 +279,10 @@ def show_login_page():
         st.markdown('''
         <div class="logo-container">
             <svg width="70" height="70" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="12" cy="12" r="10" stroke="#5B86E5" stroke-width="2"/>
-                <path d="M8 12C8 10.8954 8.89543 10 10 10H14C15.1046 10 16 10.8954 16 12V16C16 17.1046 15.1046 18 14 18H10C8.89543 18 8 17.1046 8 16V12Z" fill="#5B86E5"/>
-                <path d="M10 7L14 7" stroke="#5B86E5" stroke-width="2" stroke-linecap="round"/>
-                <path d="M12 10V7" stroke="#5B86E5" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="12" cy="12" r="10" stroke="#1E88E5" stroke-width="2"/>
+                <path d="M8 12C8 10.8954 8.89543 10 10 10H14C15.1046 10 16 10.8954 16 12V16C16 17.1046 15.1046 18 14 18H10C8.89543 18 8 17.1046 8 16V12Z" fill="#1E88E5"/>
+                <path d="M10 7L14 7" stroke="#1E88E5" stroke-width="2" stroke-linecap="round"/>
+                <path d="M12 10V7" stroke="#1E88E5" stroke-width="2" stroke-linecap="round"/>
             </svg>
         </div>
         ''', unsafe_allow_html=True)
@@ -304,6 +294,23 @@ def show_login_page():
         with st.form("login_form", clear_on_submit=False):
             username = st.text_input("Username")
             password = st.text_input("Password", type="password")
+            
+            # Additional inline CSS specifically for the form submit button
+            st.markdown("""
+            <style>
+            /* Additional specific styling for THIS form's submit button */
+            form[data-testid="stForm"] [data-testid="stFormSubmitButton"] > button {
+                background-color: #1E88E5 !important;
+                color: white !important;
+                border: none !important;
+                border-radius: 5px !important;
+                padding: 10px 0 !important;
+                font-weight: 500 !important;
+                width: 100% !important;
+                display: block !important;
+            }
+            </style>
+            """, unsafe_allow_html=True)
             
             submit_button = st.form_submit_button("Sign In", use_container_width=True)
             
@@ -329,65 +336,26 @@ def show_admin_panel():
     # Additional CSS for admin panel
     st.markdown("""
     <style>
-    /* Admin panel specific styles */
-    .admin-header {
-        color: #333 !important;
-        margin-bottom: 1.5rem !important;
-    }
-    
-    /* Table styling - more minimal */
-    .stTable {
-        border-collapse: separate !important;
-        border-spacing: 0 !important;
-        width: 100% !important;
-    }
-    
-    .stTable th {
-        background-color: #f8f9fa !important;
-        font-weight: 500 !important;
-        color: #333 !important;
-        padding: 1rem !important;
-        text-align: left !important;
-        border-bottom: 1px solid #eaecef !important;
-    }
-    
-    .stTable td {
-        padding: 1rem !important;
-        border-bottom: 1px solid #eaecef !important;
-    }
-    
-    /* Form spacing */
-    form {
-        margin-bottom: 2rem !important;
-    }
-    
-    /* Input field styling */
-    .stTextInput input,
-    [data-baseweb="input"] input {
-        border-radius: 8px !important;
-        padding: 12px 16px !important;
-        background-color: #f8f9fa !important;
-        border: 1px solid #eaecef !important;
-        transition: all 0.2s ease !important;
-    }
-    
-    /* Button styling */
-    .stButton > button {
-        background-color: #5B86E5 !important;
-        background-image: linear-gradient(135deg, #5B86E5, #36D1DC) !important;
-        color: white !important;
-        border: none !important;
-        border-radius: 8px !important;
-        padding: 10px 16px !important;
-        font-weight: 500 !important;
-        transition: all 0.2s ease !important;
-        box-shadow: 0 4px 6px rgba(91, 134, 229, 0.1) !important;
-    }
-    
-    .stButton > button:hover {
-        transform: translateY(-2px) !important;
-        box-shadow: 0 6px 12px rgba(91, 134, 229, 0.15) !important;
-    }
+        /* Admin panel specific styles */
+        .admin-header {
+            color: #1E88E5 !important;
+            margin-bottom: 1rem !important;
+        }
+        
+        /* Table styling */
+        .stTable {
+            border-collapse: collapse !important;
+        }
+        
+        .stTable th {
+            background-color: #f5f5f5 !important;
+            font-weight: 600 !important;
+        }
+        
+        .stTable td, .stTable th {
+            padding: 8px 12px !important;
+            border: 1px solid #e0e0e0 !important;
+        }
     </style>
     """, unsafe_allow_html=True)
     
@@ -473,249 +441,82 @@ def main():
     # Apply global app CSS
     st.markdown("""
     <style>
-    /* Global app styling */
-    .stApp {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 2rem;
-    }
-
-    /* Improve spacing throughout the app */
-    .block-container {
-        padding-top: 2rem;
-        padding-bottom: 2rem;
-        max-width: 100%;
-    }
-
-    /* Title styling - cleaner and more minimal */
-    h1, h2, h3, h4, h5, h6 {
-        color: #333 !important;
-        font-weight: 500 !important;
-        letter-spacing: -0.01em;
-        margin-bottom: 1.5rem !important;
-    }
-
-    /* Input field styling - cleaner and more minimal */
-    .stTextInput input,
-    [data-baseweb="input"] input,
-    .css-1n76uvr input,
-    input[type="text"],
-    input[type="password"] {
-        border-radius: 8px !important;
-        padding: 12px 16px !important;
-        background-color: #f8f9fa !important;
-        border: 1px solid #eaecef !important;
-        width: 100% !important;
-        transition: all 0.2s ease !important;
-    }
-
-    /* Focus states */
-    .stTextInput [data-baseweb="input"]:focus-within,
-    .stTextInput div[data-focused="true"],
-    [data-baseweb="input"]:focus-within {
-        border-color: #5B86E5 !important;
-        box-shadow: 0 0 0 2px rgba(91, 134, 229, 0.2) !important;
-    }
-
-    /* Softer button styling */
-    .stButton > button,
-    button[kind="primaryFormSubmit"],
-    [data-testid="stFormSubmitButton"] > button,
-    form [data-testid="stFormSubmitButton"] button {
-        width: 100% !important;
-        background-color: #5B86E5 !important;
-        background-image: linear-gradient(135deg, #5B86E5, #36D1DC) !important;
-        color: white !important;
-        border: none !important;
-        border-radius: 8px !important;
-        padding: 12px 0 !important;
-        font-weight: 500 !important;
-        cursor: pointer !important;
-        transition: all 0.2s ease !important;
-        margin-top: 10px !important;
-        margin-bottom: 10px !important;
-        display: block !important;
-        text-align: center !important;
-        box-shadow: 0 4px 6px rgba(91, 134, 229, 0.1) !important;
-    }
-
-    /* Hover styles for buttons */
-    .stButton > button:hover,
-    button[kind="primaryFormSubmit"]:hover,
-    [data-testid="stFormSubmitButton"] > button:hover {
-        transform: translateY(-2px) !important;
-        box-shadow: 0 6px 12px rgba(91, 134, 229, 0.15) !important;
-    }
-
-    /* Expander styling */
-    .streamlit-expanderHeader {
-        font-weight: 500 !important;
-        color: #333 !important;
-        background-color: #f8f9fa !important;
-        border-radius: 8px !important;
-        padding: 0.75rem 1rem !important;
-    }
-
-    /* Slider styling */
-    .stSlider > div[data-baseweb="slider"] {
-        margin-top: 2rem !important;
-        margin-bottom: 2rem !important;
-    }
-
-    .stSlider [data-testid="stThumbValue"] {
-        background-color: #5B86E5 !important;
-    }
-
-    /* Sidebar styling - more minimal */
-    .css-1d391kg, .css-1lcbmhc {
-        background-color: #fafafa !important;
-        border-right: 1px solid #f0f0f0 !important;
-        padding: 2rem 1rem !important;
-    }
-
-    /* Tab styling */
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 2px;
-        border-bottom: 1px solid #eaecef;
-        padding-bottom: 0;
-    }
-
-    .stTabs [data-baseweb="tab"] {
-        height: 50px;
-        white-space: pre-wrap;
-        background-color: transparent;
-        border-radius: 8px 8px 0 0;
-        gap: 1px;
-        padding: 10px 16px;
-        font-weight: 500;
-        color: #666;
-        border: none;
-        transition: all 0.2s ease;
-    }
-
-    .stTabs [aria-selected="true"] {
-        background-color: transparent !important;
-        color: #5B86E5 !important;
-        border-bottom: 2px solid #5B86E5 !important;
-    }
-
-    /* Cards for recent generations */
-    .stExpander {
-        background-color: #f8f9fa !important;
-        border-radius: 8px !important;
-        border: 1px solid #eaecef !important;
-        margin-bottom: 1rem !important;
-        transition: all 0.2s ease !important;
-    }
-
-    .stExpander:hover {
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05) !important;
-    }
-
-    /* Audio player styling */
-    audio {
-        width: 100% !important;
-        margin-top: 15px !important;
-        margin-bottom: 15px !important;
-        border-radius: 8px !important;
-    }
-
-    /* Download link styling */
-    a[download] {
-        display: inline-block !important;
-        background-color: #5B86E5 !important;
-        color: white !important;
-        padding: 8px 16px !important;
-        text-decoration: none !important;
-        border-radius: 8px !important;
-        margin-top: 10px !important;
-        margin-bottom: 10px !important;
-        font-weight: 500 !important;
-        transition: all 0.2s ease !important;
-        box-shadow: 0 2px 4px rgba(91, 134, 229, 0.1) !important;
-    }
-
-    a[download]:hover {
-        background-color: #4a76d5 !important;
-        transform: translateY(-1px) !important;
-        box-shadow: 0 4px 8px rgba(91, 134, 229, 0.15) !important;
-    }
-
-    /* Error and success messages - more minimal */
-    .stAlert {
-        border-radius: 8px !important;
-        margin-top: 1.5rem !important;
-        padding: 1rem !important;
-        border: none !important;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05) !important;
-    }
-
-    /* Text area styling */
-    .stTextArea textarea {
-        border-radius: 8px !important;
-        border: 1px solid #eaecef !important;
-        background-color: #f8f9fa !important;
-        padding: 12px 16px !important;
-        min-height: 120px !important;
-        transition: all 0.2s ease !important;
-    }
-
-    .stTextArea textarea:focus {
-        border-color: #5B86E5 !important;
-        box-shadow: 0 0 0 2px rgba(91, 134, 229, 0.2) !important;
-    }
-
-    /* File uploader styling */
-    .stFileUploader div[data-testid="stFileUploader"] {
-        padding: 1.5rem !important;
-        border: 2px dashed #eaecef !important;
-        border-radius: 8px !important;
-        background-color: #f8f9fa !important;
-        transition: all 0.2s ease !important;
-    }
-
-    .stFileUploader div[data-testid="stFileUploader"]:hover {
-        border-color: #5B86E5 !important;
-    }
-
-    /* Select box styling */
-    .stSelectbox > div[data-baseweb="select"] > div {
-        background-color: #f8f9fa !important;
-        border: 1px solid #eaecef !important;
-        border-radius: 8px !important;
-        transition: all 0.2s ease !important;
-    }
-
-    .stSelectbox > div[data-baseweb="select"] > div:hover {
-        border-color: #5B86E5 !important;
-    }
-
-    /* Hide default streamlit elements */
-    #MainMenu {visibility: hidden !important;}
-    footer {visibility: hidden !important;}
-
-    /* Fluid container width based on screen size */
-    @media (min-width: 992px) {
-        .block-container {
-            padding-left: 5rem;
-            padding-right: 5rem;
+        /* Global app styling */
+        .stApp {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
         }
-    }
-
-    @media (max-width: 991px) {
-        .block-container {
-            padding-left: 2rem;
-            padding-right: 2rem;
+        
+        /* Headers */
+        h1, h2, h3, h4, h5, h6 {
+            color: #1E88E5 !important;
+            font-weight: 600 !important;
         }
-    }
-
-    @media (max-width: 767px) {
-        .block-container {
-            padding-left: 1rem;
-            padding-right: 1rem;
+        
+        /* Form elements */
+        .stSlider > div[data-baseweb="slider"] {
+            margin-top: 10px !important;
+            margin-bottom: 10px !important;
         }
-    }
+        
+        .stSelectbox > div[data-baseweb="select"] {
+            cursor: pointer !important;
+        }
+        
+        /* Audio player styling */
+        audio {
+            width: 100% !important;
+            margin-top: 10px !important;
+            margin-bottom: 10px !important;
+        }
+        
+        /* Download link styling */
+        a[download] {
+            display: inline-block !important;
+            background-color: #4CAF50 !important;
+            color: white !important;
+            padding: 8px 16px !important;
+            text-decoration: none !important;
+            border-radius: 4px !important;
+            margin-top: 10px !important;
+            margin-bottom: 10px !important;
+            font-weight: 500 !important;
+            transition: background-color 0.3s !important;
+        }
+        
+        a[download]:hover {
+            background-color: #3e8e41 !important;
+        }
+        
+        /* Expander styling */
+        .streamlit-expanderHeader {
+            font-weight: 500 !important;
+            color: #424242 !important;
+        }
+        
+        /* Sidebar styling */
+        .css-1d391kg, .css-1lcbmhc {
+            background-color: #f5f5f5 !important;
+        }
+        
+        /* Tab styling */
+        .stTabs [data-baseweb="tab-list"] {
+            gap: 8px;
+        }
+        
+        .stTabs [data-baseweb="tab"] {
+            height: 50px;
+            white-space: pre-wrap;
+            background-color: #f0f2f6;
+            border-radius: 4px 4px 0 0;
+            gap: 1px;
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+        
+        .stTabs [aria-selected="true"] {
+            background-color: #1E88E5 !important;
+            color: white !important;
+        }
     </style>
     """, unsafe_allow_html=True)
     
@@ -761,8 +562,8 @@ def main():
         }
         
         voice_conversion_model_options = {
-            "Multilingual Voice Conversion": "eleven_multilingual_sts_v2",
-            "English Conversion Model": "eleven_english_sts_v2"
+            "English Conversion Model": "eleven_english_sts_v2",
+            "Multilingual Voice Conversion": "eleven_multilingual_sts_v2"
         }
         
         # Store both model selections in session state
