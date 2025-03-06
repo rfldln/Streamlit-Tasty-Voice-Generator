@@ -122,69 +122,146 @@ def delete_user(username, users, current_user):
     save_users(users)
     return True, f"User '{username}' deleted successfully"
 
-# Login page - clean light theme styling to match screenshot
+# Login page - enhanced with more aggressive styling
 def show_login_page():
-    """Show a clean light-themed login page styled to match the provided screenshot"""
-    # Apply minimal styling for light theme
+    """Show the styled login page with more robust CSS"""
+    # Apply universal CSS at the beginning of the app
     st.markdown("""
     <style>
-        /* Clean container styling */
-        .login-container {
-            max-width: 400px;
-            margin: 0 auto;
-            padding: 20px;
-            border-radius: 8px;
-            border: 1px solid #f0f0f0;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            background: white;
-            margin-top: 50px;
-        }
-        
-        /* Logo styling */
-        .logo-container {
-            text-align: center;
-            margin-bottom: 20px;
+        /* Reset some basic elements */
+        * {
+            box-sizing: border-box;
         }
         
         /* Title styling */
         .login-title {
-            font-size: 1.7rem;
-            font-weight: 500;
-            text-align: center;
-            margin-bottom: 30px;
-            color: #2196F3;
+            font-size: 2rem !important;
+            font-weight: 600 !important;
+            text-align: center !important;
+            margin-bottom: 1rem !important;
+            color: #1E88E5 !important;
         }
         
-        /* Input field labels */
-        .stTextInput > label {
-            font-weight: 500;
-            margin-bottom: 5px;
-            color: #333;
+        /* Logo styling */
+        .logo-container {
+            text-align: center !important;
+            margin-bottom: 1rem !important;
         }
         
-        /* Button styling for light theme */
-        [data-testid="stFormSubmitButton"] button {
-            background-color: #2196F3 !important;
+        /* More aggressive styling for input fields with multiple selectors */
+        .stTextInput input,
+        [data-baseweb="input"] input,
+        .css-1n76uvr input,
+        input[type="text"],
+        input[type="password"] {
+            border-radius: 5px !important;
+            padding: 10px 15px !important;
+            background-color: #262730 !important;
+            width: 100% !important;
+        }
+        
+        /* Targeted focus states */
+        .stTextInput [data-baseweb="input"]:focus-within,
+        .stTextInput div[data-focused="true"],
+        [data-baseweb="input"]:focus-within {
+            border-color: #1E88E5 !important;
+            box-shadow: 0 0 0 1px #1E88E5 !important;
+        }
+        
+        /* Additional targeting to override focus styling */
+        .stTextInput div[data-focused="true"] > div,
+        [data-baseweb="input"]:focus-within > div {
+            border-color: #1E88E5 !important;
+            box-shadow: none !important;
+        }
+        
+        /* Default border color */
+        .stTextInput div,
+        [data-baseweb="input"] div {
+            border-color: transparent !important;
+        }
+        
+        /* Label styling with !important */
+        .stTextInput > label,
+        [data-baseweb="input"] + label {
+            font-weight: 500 !important;
+            color: #424242 !important;
+        }
+        
+        /* Ultra aggressive button styling to override all Streamlit defaults */
+        div[data-testid="stForm"] .stButton > button,
+        .stButton > button,
+        button[kind="primaryFormSubmit"],
+        [data-testid="stFormSubmitButton"] > button,
+        form [data-testid="stFormSubmitButton"] button,
+        button.css-1x8cf1d,
+        button.css-7ym5gk,
+        button.css-13q3t3r,
+        button.css-1vgnxcy {
+            width: 100% !important;
+            background-color: #1E88E5 !important;
             color: white !important;
             border: none !important;
-            border-radius: 4px !important;
+            border-radius: 5px !important;
             padding: 10px 0 !important;
             font-weight: 500 !important;
-            width: 100% !important;
-            margin-top: 10px !important;
+            cursor: pointer !important;
+            transition: background-color 0.3s !important;
+            margin-top: 5px !important;
+            margin-bottom: 5px !important;
+            display: block !important;
+            text-align: center !important;
+            box-shadow: none !important;
+        }
+        
+        /* Hover styles for all buttons with ultra-specific selectors */
+        .stButton > button:hover,
+        button[kind="primaryFormSubmit"]:hover,
+        [data-testid="stFormSubmitButton"] > button:hover,
+        button.css-1x8cf1d:hover,
+        button.css-7ym5gk:hover,
+        button.css-13q3t3r:hover,
+        button.css-1vgnxcy:hover {
+            background-color: #154b82 !important;
+            color: white !important;
+            border: none !important;
+        }
+        
+        /* Error and success messages */
+        .stAlert {
+            text-align: center !important;
+            border-radius: 5px !important;
+            margin-top: 1.5rem !important;
         }
         
         /* Footer styling */
         .footer {
-            text-align: center;
-            margin-top: 40px;
-            font-size: 0.8rem;
-            color: #757575;
+            text-align: center !important;
+            margin-top: 2.5rem !important;
+            font-size: 0.8rem !important;
+            color: #757575 !important;
         }
         
         /* Hide default streamlit elements */
-        #MainMenu {visibility: hidden;}
-        footer {visibility: hidden;}
+        #MainMenu {visibility: hidden !important;}
+        footer {visibility: hidden !important;}
+        
+        /* Center the login form vertically */
+        .centered-content {
+            margin-top: 10vh !important;
+        }
+        
+        /* Ensure form widgets display properly */
+        .stForm > div {
+            width: 100% !important;
+        }
+        
+        /* Cursor pointer for selectable items */
+        div[data-baseweb="select"],
+        div[data-baseweb="select"] > div,
+        li[role="option"] {
+            cursor: pointer !important;
+        }
     </style>
     """, unsafe_allow_html=True)
     
@@ -192,67 +269,65 @@ def show_login_page():
     if "users" not in st.session_state:
         st.session_state.users = init_authentication()
     
-    # Use full width with appropriate margins
-    st.markdown('<div style="max-width: 450px; margin: 0 auto;">', unsafe_allow_html=True)
+    # Create a more compact centered layout
+    col1, col2, col3 = st.columns([2, 1, 2])
     
-    # Create a login container div
-    st.markdown('<div class="login-container">', unsafe_allow_html=True)
-    
-    # Logo - using bottle icon to match the screenshot
-    st.markdown('''
-    <div class="logo-container">
-        <svg width="50" height="50" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="12" cy="12" r="12" fill="#2196F3"/>
-            <path d="M8 8.5C8 7.67157 8.67157 7 9.5 7H14.5C15.3284 7 16 7.67157 16 8.5V15.5C16 16.3284 15.3284 17 14.5 17H9.5C8.67157 17 8 16.3284 8 15.5V8.5Z" fill="white"/>
-            <path d="M12 7V5" stroke="white" stroke-width="2" stroke-linecap="round"/>
-            <path d="M10 5H14" stroke="white" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-    </div>
-    ''', unsafe_allow_html=True)
-    
-    # Title
-    st.markdown('<h1 class="login-title">Tasty Voice Generator</h1>', unsafe_allow_html=True)
+    with col2:
+        st.markdown('<div class="centered-content">', unsafe_allow_html=True)
+        
+        # Logo (you can replace with an actual logo)
+        st.markdown('''
+        <div class="logo-container">
+            <svg width="70" height="70" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" stroke="#1E88E5" stroke-width="2"/>
+                <path d="M8 12C8 10.8954 8.89543 10 10 10H14C15.1046 10 16 10.8954 16 12V16C16 17.1046 15.1046 18 14 18H10C8.89543 18 8 17.1046 8 16V12Z" fill="#1E88E5"/>
+                <path d="M10 7L14 7" stroke="#1E88E5" stroke-width="2" stroke-linecap="round"/>
+                <path d="M12 10V7" stroke="#1E88E5" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+        </div>
+        ''', unsafe_allow_html=True)
+        
+        # Title
+        st.markdown('<h1 class="login-title">Tasty Voice Generator</h1>', unsafe_allow_html=True)
 
-    # Use a form for Enter key functionality with styled button
-    with st.form("login_form", clear_on_submit=False):
-        username = st.text_input("Username")
-        password = st.text_input("Password", type="password")
+        # Use a form for Enter key functionality with styled button
+        with st.form("login_form", clear_on_submit=False):
+            username = st.text_input("Username")
+            password = st.text_input("Password", type="password")
+            
+            # Additional inline CSS specifically for the form submit button
+            st.markdown("""
+            <style>
+            /* Additional specific styling for THIS form's submit button */
+            form[data-testid="stForm"] [data-testid="stFormSubmitButton"] > button {
+                background-color: #1E88E5 !important;
+                color: white !important;
+                border: none !important;
+                border-radius: 5px !important;
+                padding: 10px 0 !important;
+                font-weight: 500 !important;
+                width: 100% !important;
+                display: block !important;
+            }
+            </style>
+            """, unsafe_allow_html=True)
+            
+            submit_button = st.form_submit_button("Sign In", use_container_width=True)
+            
+            if submit_button:
+                if login_user(username, password, st.session_state.users):
+                    st.session_state.logged_in = True
+                    st.session_state.username = username
+                    st.session_state.is_admin = st.session_state.users[username]["is_admin"]
+                    st.success("Login successful! Redirecting...")
+                    time.sleep(1)  # Short delay for better UX
+                    st.rerun()
+                else:
+                    st.error("Invalid username or password")
         
-        # Custom CSS for the submit button using HTML
-        st.markdown("""
-        <style>
-        /* Additional specific styling for THIS form's submit button */
-        [data-testid="stFormSubmitButton"] button {
-            background-color: #2196F3 !important;
-            color: white !important;
-            border: none !important;
-            border-radius: 4px !important;
-            padding: 10px 0 !important;
-            font-weight: 500 !important;
-            width: 100% !important;
-        }
-        </style>
-        """, unsafe_allow_html=True)
-        
-        submit_button = st.form_submit_button("Sign In", use_container_width=True)
-        
-        if submit_button:
-            if login_user(username, password, st.session_state.users):
-                st.session_state.logged_in = True
-                st.session_state.username = username
-                st.session_state.is_admin = st.session_state.users[username]["is_admin"]
-                st.success("Login successful! Redirecting...")
-                time.sleep(1)  # Short delay for better UX
-                st.rerun()
-            else:
-                st.error("Invalid username or password")
-    
-    # Close the login container and the centered div
-    st.markdown('</div>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-    
-    # Footer
-    st.markdown('<div class="footer">© 2025 Tasty Voice Generator</div>', unsafe_allow_html=True)
+        # Footer
+        st.markdown('<div class="footer">© 2025 Tasty Voice Generator</div>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)  # Close the centered content
 
 def show_admin_panel():
     """Show the admin panel for user management"""
