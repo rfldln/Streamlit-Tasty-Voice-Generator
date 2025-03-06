@@ -272,6 +272,18 @@ def show_login_page():
         color: rgba(224, 224, 255, 0.7) !important;
         padding-bottom: 2rem !important;
     }
+    
+    /* Theme note styling */
+    .theme-note {
+        text-align: center !important;
+        margin-top: 1.2rem !important;
+        font-size: 0.85rem !important;
+        color: rgba(224, 224, 255, 0.7) !important;
+        background-color: rgba(30, 30, 70, 0.6) !important;
+        border-radius: 6px !important;
+        padding: 8px 12px !important;
+        border-left: 3px solid #8e2de2 !important;
+    }
 
     /* Hide default streamlit elements */
     #MainMenu {visibility: hidden !important;}
@@ -360,6 +372,9 @@ def show_login_page():
                     st.rerun()
                 else:
                     st.error("Invalid username or password")
+        
+        # Add the dark theme note
+        st.markdown('<div class="theme-note">💡 This app looks best in dark theme!</div>', unsafe_allow_html=True)
         
         # Footer
         st.markdown('<div class="footer">© 2025 Tasty Voice Generator</div>', unsafe_allow_html=True)
