@@ -11,12 +11,21 @@ import time
 
 # Define which voices to show for each account (customize these voice IDs with your actual voice IDs)
 ACCOUNT_VOICE_MAPPING = {
+    # Add more accounts and their voices as needed
     "OF Bri's voice": [
         "XtrZA2v40BnLkNsO4MbN",  # Bri model voice
     ],
-    # Add more accounts and their voices as needed
+    
     "OF Coco's voice": [
         "oT9QD0CuqG8lLK2X4bY3",  # Coco model voice
+    ],
+    
+    "OF Mel's voice": [
+        "oPCTXWLNPjuUYQCRVrwA",  # Mel model voice
+    ],
+
+    "OF Lala's voice": [
+        "pFxPgV5pV6WbTBIfVh0M",  # Lala model voice
     ],
 }
 
