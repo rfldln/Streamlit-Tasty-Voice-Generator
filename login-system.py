@@ -9,6 +9,19 @@ from io import BytesIO
 from pathlib import Path
 import time
 
+# Define which voices to show for each account (customize these voice IDs with your actual voice IDs)
+ACCOUNT_VOICE_MAPPING = {
+    "OF Bri's voice": [
+        "XtrZA2v40BnLkNsO4MbN",  # Bri model voice
+    ],
+    # Add more accounts and their voices as needed
+    "Premium Account": [
+        "VR6AewLTigWG4xSOukaG",  # Nicole
+        "pNInz6obpgDQGcFmaJgB",  # Josh
+        "yoZ06aMxZJJ28mfd3POQ",  # Sam
+    ],
+}
+
 # Multi-account API key handling
 def get_elevenlabs_accounts():
     """Get all configured ElevenLabs accounts from secrets or environment variables"""
@@ -64,7 +77,7 @@ def get_elevenlabs_accounts():
             # Final fallback to legacy single API key
             default_api_key = os.environ.get("ELEVENLABS_API_KEY")
             if default_api_key:
-                accounts["Default Account"] = default_api_key
+                accounts["OF Bri's voice"] = default_api_key
     
     return accounts
 
@@ -179,8 +192,8 @@ def delete_user(username, users, current_user):
 
 # Function to get all voices for a specific account
 @st.cache_data(ttl=3600)  # Cache for one hour
-def get_voices_for_account(api_key):
-    """Get all voices available for the specified API key"""
+def get_voices_for_account(api_key, account_name):
+    """Get all voices available for the specified API key, with optional filtering"""
     url = "https://api.elevenlabs.io/v1/voices"
     headers = {
         "Accept": "application/json",
@@ -191,6 +204,15 @@ def get_voices_for_account(api_key):
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         voices_data = response.json()
+        
+        # Apply filtering if we have a mapping for this account
+        if account_name in ACCOUNT_VOICE_MAPPING:
+            allowed_voice_ids = ACCOUNT_VOICE_MAPPING[account_name]
+            # Filter voices to only include the allowed ones
+            filtered_voices = [voice for voice in voices_data.get("voices", []) 
+                              if voice["voice_id"] in allowed_voice_ids]
+            voices_data["voices"] = filtered_voices
+        
         return voices_data
     except requests.exceptions.RequestException as e:
         st.error(f"Error fetching voices: {str(e)}")
@@ -209,9 +231,11 @@ def show_account_info(account_name, voices_data):
                 border: 1px solid rgba(123, 97, 255, 0.3);">
         <h3 style="margin-top: 0; color: #aa80ff;">Account Information</h3>
         <p><strong>Name:</strong> {account_name}</p>
+        <p><strong>Available Voices:</strong> {voice_count}</p>
     </div>
     """.format(
         account_name=account_name,
+        voice_count=len(voices_data.get("voices", []))
     ), unsafe_allow_html=True)
 
 # Function to categorize voices
@@ -1144,11 +1168,11 @@ def main():
         st.markdown("---")
         st.markdown("Made with ❤️ by raffyboi")
 
-    # Get available voices for the selected account
-    voices_data = get_voices_for_account(current_api_key)
+    # Get available voices for the selected account with filtering
+    voices_data = get_voices_for_account(current_api_key, selected_account)
     
     if not voices_data.get("voices"):
-        st.error(f"Could not fetch voices for account '{selected_account}'. Please check if the API key is valid.")
+        st.error(f"Could not fetch voices for account '{selected_account}'. Please check if the API key is valid or if voice IDs are correctly configured.")
         st.stop()
     
     # Extract all voice options for dropdown
