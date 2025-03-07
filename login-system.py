@@ -15,10 +15,8 @@ ACCOUNT_VOICE_MAPPING = {
         "XtrZA2v40BnLkNsO4MbN",  # Bri model voice
     ],
     # Add more accounts and their voices as needed
-    "Premium Account": [
-        "VR6AewLTigWG4xSOukaG",  # Nicole
-        "pNInz6obpgDQGcFmaJgB",  # Josh
-        "yoZ06aMxZJJ28mfd3POQ",  # Sam
+    "OF Coco's voice": [
+        "oT9QD0CuqG8lLK2X4bY3",  # Coco model voice
     ],
 }
 
