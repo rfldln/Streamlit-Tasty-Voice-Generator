@@ -1173,7 +1173,7 @@ def main():
                                     help="High values are recommended if the style of the speech should be exaggerated compared to the uploaded audio. Higher values can lead to more instability in the generated speech. Setting this to 0.0 will greatly increase generation speed and is the default setting.")
         
         st.markdown("---")
-        st.markdown("Made with ❤️ by raffyboi")
+        st.markdown("Made with ❤️ by Ti & raffyboi")
 
     # Get available voices for the selected account with filtering
     voices_data = get_voices_for_account(current_api_key, selected_account)
