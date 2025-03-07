@@ -199,7 +199,6 @@ def get_voices_for_account(api_key):
 # Function to display account information
 def show_account_info(account_name, voices_data):
     """Display information about the selected account and its voices"""
-    total_voices = len(voices_data.get("voices", []))
     
     # Display the information in a nice card
     st.markdown("""
@@ -210,7 +209,6 @@ def show_account_info(account_name, voices_data):
                 border: 1px solid rgba(123, 97, 255, 0.3);">
         <h3 style="margin-top: 0; color: #aa80ff;">Account Information</h3>
         <p><strong>Name:</strong> {account_name}</p>
-        <p><strong>Total Voices:</strong> {total_voices}</p>
     </div>
     """.format(
         account_name=account_name,
