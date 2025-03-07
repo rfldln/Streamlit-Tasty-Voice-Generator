@@ -201,11 +201,6 @@ def show_account_info(account_name, voices_data):
     """Display information about the selected account and its voices"""
     total_voices = len(voices_data.get("voices", []))
     
-    # Count premium voices (you may need to adjust this logic based on ElevenLabs' API)
-    premium_voices = sum(1 for voice in voices_data.get("voices", []) 
-                        if voice.get("category") == "premium" or 
-                           voice.get("labels", {}).get("premium", False))
-    
     # Display the information in a nice card
     st.markdown("""
     <div style="background-color: rgba(40, 40, 80, 0.6); 
@@ -216,12 +211,10 @@ def show_account_info(account_name, voices_data):
         <h3 style="margin-top: 0; color: #aa80ff;">Account Information</h3>
         <p><strong>Name:</strong> {account_name}</p>
         <p><strong>Total Voices:</strong> {total_voices}</p>
-        <p><strong>Premium Voices:</strong> {premium_voices}</p>
     </div>
     """.format(
         account_name=account_name,
         total_voices=total_voices,
-        premium_voices=premium_voices
     ), unsafe_allow_html=True)
 
 # Function to categorize voices
