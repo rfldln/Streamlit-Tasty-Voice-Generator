@@ -212,7 +212,6 @@ def show_account_info(account_name, voices_data):
     </div>
     """.format(
         account_name=account_name,
-        total_voices=total_voices,
     ), unsafe_allow_html=True)
 
 # Function to categorize voices
