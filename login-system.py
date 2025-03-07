@@ -9,16 +9,64 @@ from io import BytesIO
 from pathlib import Path
 import time
 
-# API key handling for both local and cloud
-api_key = os.environ.get("ELEVENLABS_API_KEY")
-# Only use dotenv in local development if available
-try:
-    from dotenv import load_dotenv
-    if Path(".env").exists():
-        load_dotenv()
-        api_key = os.environ.get("ELEVENLABS_API_KEY")
-except ImportError:
-    pass
+# Multi-account API key handling
+def get_elevenlabs_accounts():
+    """Get all configured ElevenLabs accounts from secrets or environment variables"""
+    accounts = {}
+    
+    # For local development with .env file
+    try:
+        from dotenv import load_dotenv
+        if Path(".env").exists():
+            load_dotenv()
+    except ImportError:
+        pass
+    
+    # Try to get accounts from Streamlit secrets
+    try:
+        if "elevenlabs" in st.secrets:
+            # Get accounts configured in secrets
+            elevenlabs_secrets = st.secrets["elevenlabs"]
+            
+            # Process each account (expecting pairs of account#_name and account#_key)
+            account_indices = set()
+            for key in elevenlabs_secrets:
+                if key.startswith("account") and key.endswith("_name"):
+                    idx = key.replace("account", "").replace("_name", "")
+                    account_indices.add(idx)
+            
+            # Create account entries
+            for idx in account_indices:
+                name_key = f"account{idx}_name"
+                api_key_key = f"account{idx}_key"
+                
+                if name_key in elevenlabs_secrets and api_key_key in elevenlabs_secrets:
+                    account_name = elevenlabs_secrets[name_key]
+                    account_api_key = elevenlabs_secrets[api_key_key]
+                    accounts[account_name] = account_api_key
+    except Exception as e:
+        st.warning(f"Error loading accounts from secrets: {e}")
+    
+    # Fallback to environment variables if no accounts found
+    if not accounts:
+        # Try from .env or environment variables with multiple account format
+        env_accounts = {}
+        for i in range(1, 10):  # Check for up to 9 accounts
+            name_env = os.environ.get(f"ELEVENLABS_ACCOUNT{i}_NAME")
+            key_env = os.environ.get(f"ELEVENLABS_ACCOUNT{i}_KEY")
+            
+            if name_env and key_env:
+                env_accounts[name_env] = key_env
+        
+        if env_accounts:
+            accounts = env_accounts
+        else:
+            # Final fallback to legacy single API key
+            default_api_key = os.environ.get("ELEVENLABS_API_KEY")
+            if default_api_key:
+                accounts["Default Account"] = default_api_key
+    
+    return accounts
 
 # User authentication functions - adapted for cloud
 def init_authentication():
@@ -38,6 +86,13 @@ def init_authentication():
     default_username = "admin"
     # Use environment variable for admin password if available
     default_password = os.environ.get("ADMIN_PASSWORD", "admin123")
+    
+    # Try to get from secrets if available
+    try:
+        if "admin" in st.secrets and "password" in st.secrets.admin:
+            default_password = st.secrets.admin.password
+    except:
+        pass
     
     if users_file.exists():
         try:
@@ -121,6 +176,71 @@ def delete_user(username, users, current_user):
     del users[username]
     save_users(users)
     return True, f"User '{username}' deleted successfully"
+
+# Function to get all voices for a specific account
+@st.cache_data(ttl=3600)  # Cache for one hour
+def get_voices_for_account(api_key):
+    """Get all voices available for the specified API key"""
+    url = "https://api.elevenlabs.io/v1/voices"
+    headers = {
+        "Accept": "application/json",
+        "xi-api-key": api_key
+    }
+    
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        voices_data = response.json()
+        return voices_data
+    except requests.exceptions.RequestException as e:
+        st.error(f"Error fetching voices: {str(e)}")
+        return {"voices": []}
+
+# Function to display account information
+def show_account_info(account_name, voices_data):
+    """Display information about the selected account and its voices"""
+    total_voices = len(voices_data.get("voices", []))
+    
+    # Count premium voices (you may need to adjust this logic based on ElevenLabs' API)
+    premium_voices = sum(1 for voice in voices_data.get("voices", []) 
+                        if voice.get("category") == "premium" or 
+                           voice.get("labels", {}).get("premium", False))
+    
+    # Display the information in a nice card
+    st.markdown("""
+    <div style="background-color: rgba(40, 40, 80, 0.6); 
+                border-radius: 8px; 
+                padding: 15px; 
+                margin-bottom: 20px; 
+                border: 1px solid rgba(123, 97, 255, 0.3);">
+        <h3 style="margin-top: 0; color: #aa80ff;">Account Information</h3>
+        <p><strong>Name:</strong> {account_name}</p>
+        <p><strong>Total Voices:</strong> {total_voices}</p>
+        <p><strong>Premium Voices:</strong> {premium_voices}</p>
+    </div>
+    """.format(
+        account_name=account_name,
+        total_voices=total_voices,
+        premium_voices=premium_voices
+    ), unsafe_allow_html=True)
+
+# Function to categorize voices
+def categorize_voices(voices_data):
+    """Organize voices by category for easier selection"""
+    categories = {}
+    
+    for voice in voices_data.get("voices", []):
+        # Try to get category from the voice data
+        category = voice.get("category", "Other")
+        
+        # Initialize category if not exists
+        if category not in categories:
+            categories[category] = []
+        
+        # Add voice to category
+        categories[category].append(voice)
+    
+    return categories
 
 # Login page - with space theme
 def show_login_page():
@@ -502,6 +622,75 @@ def show_admin_panel():
                     st.rerun()
                 else:
                     st.error(message)
+
+# Function to generate voice
+def generate_voice(api_key, voice_id, text, model_id, voice_settings):
+    url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
+    
+    headers = {
+        "Accept": "audio/mpeg",
+        "Content-Type": "application/json",
+        "xi-api-key": api_key
+    }
+    
+    data = {
+        "text": text,
+        "model_id": model_id,
+        "voice_settings": voice_settings
+    }
+    
+    try:
+        response = requests.post(url, json=data, headers=headers)
+        response.raise_for_status()
+        return response.content
+    except requests.exceptions.RequestException as e:
+        st.error(f"Error generating voice: {str(e)}")
+        if hasattr(e, 'response') and e.response is not None:
+            st.error(f"API response: {e.response.text}")
+        return None
+
+# Function to convert voice
+def convert_voice(api_key, voice_id, audio_data, model_id, voice_settings):
+    url = f"https://api.elevenlabs.io/v1/speech-to-speech/{voice_id}"
+    
+    headers = {
+        "Accept": "audio/mpeg",
+        "xi-api-key": api_key
+    }
+    
+    # Handle different audio formats
+    content_type = "audio/mpeg"
+    if isinstance(audio_data, bytes):
+        # Try to detect the content type based on first few bytes
+        if audio_data.startswith(b'RIFF'):
+            content_type = "audio/wav"
+        elif audio_data.startswith(b'ID3') or audio_data.startswith(b'\xff\xfb'):
+            content_type = "audio/mpeg"
+        
+    files = {
+        "audio": ("input_audio", audio_data, content_type)
+    }
+    
+    data = {
+        "model_id": model_id,
+        "voice_settings": json.dumps(voice_settings)
+    }
+    
+    try:
+        response = requests.post(url, headers=headers, files=files, data=data)
+        response.raise_for_status()
+        return response.content
+    except requests.exceptions.RequestException as e:
+        st.error(f"Error converting voice: {str(e)}")
+        if hasattr(e, 'response') and e.response is not None:
+            st.error(f"API response: {e.response.text}")
+        return None
+
+# Function to create download link with enhanced styling
+def get_audio_download_link(audio_data, filename="generated_voice.mp3"):
+    b64 = base64.b64encode(audio_data).decode()
+    href = f'<a href="data:audio/mpeg;base64,{b64}" download="{filename}">DOWNLOAD GENERATED AUDIO</a>'
+    return href
 
 # Main function to run the Streamlit app
 def main():
@@ -886,7 +1075,7 @@ def main():
         show_admin_panel()
         return
     
-    # Define model options at the beginning so they're accessible throughout the function
+    # Define model options
     # Separate models for TTS and voice conversion
     tts_model_options = {
         "Multilingual v2 (Enhanced)": "eleven_multilingual_v2",
@@ -907,8 +1096,18 @@ def main():
     if "vc_model" not in st.session_state:
         st.session_state.vc_model = list(voice_conversion_model_options.keys())[0]
     
-    # Main app logic starts here
-    # Adding a sidebar for user management (without model selection)
+    # Get available ElevenLabs accounts
+    elevenlabs_accounts = get_elevenlabs_accounts()
+    
+    if not elevenlabs_accounts:
+        st.error("No ElevenLabs accounts configured. Please set up at least one account.")
+        st.stop()
+    
+    # Get account selection from session state or default to first account
+    if "selected_account" not in st.session_state:
+        st.session_state.selected_account = list(elevenlabs_accounts.keys())[0]
+
+    # Main app sidebar
     with st.sidebar:
         st.write(f"Logged in as: **{st.session_state.username}**")
         
@@ -925,6 +1124,19 @@ def main():
             
         st.markdown("---")
         
+        # Account selection
+        st.header("Account Selection")
+        selected_account = st.selectbox(
+            "ElevenLabs Account", 
+            options=list(elevenlabs_accounts.keys()),
+            index=list(elevenlabs_accounts.keys()).index(st.session_state.selected_account)
+        )
+        
+        # Get the selected API key and update session state
+        current_api_key = elevenlabs_accounts[selected_account]
+        st.session_state.selected_account = selected_account
+        
+        # Voice settings
         st.header("Voice Settings")
         stability = st.slider("Stability", min_value=0.0, max_value=1.0, value=0.5, step=0.01,
                             help="The voice will sound more consistent among re-generations if stability is increased, but it may also sound a little monotonous.  We advise reducing this value for lengthy text passages.")
@@ -942,127 +1154,21 @@ def main():
         st.markdown("---")
         st.markdown("Made with ❤️ by raffyboi")
 
-    # Function to get filtered voices
-    @st.cache_data(ttl=3600)  # Cache for one hour
-    def get_filtered_voices(api_key):
-        url = "https://api.elevenlabs.io/v1/voices"
-        headers = {
-            "Accept": "application/json",
-            "xi-api-key": api_key
-        }
-        
-        # List of voice IDs you want to include in your application
-        selected_voice_ids = [
-            "ZXcn1MHG7yBUBie2UO9w",  # Ti
-            "XtrZA2v40BnLkNsO4MbN",  # Bri
-        ]
-        
-        try:
-            response = requests.get(url, headers=headers)
-            response.raise_for_status()
-            voices_data = response.json()
-            
-            # Filter voices to only include the selected IDs
-            filtered_voices = {
-                "voices": [voice for voice in voices_data["voices"] 
-                          if voice["voice_id"] in selected_voice_ids]
-            }
-            return filtered_voices
-        except requests.exceptions.RequestException as e:
-            st.error(f"Error fetching voices: {str(e)}")
-            return {"voices": []}
-
-    # Function to generate voice
-    def generate_voice(api_key, voice_id, text, model_id, voice_settings):
-        url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
-        
-        headers = {
-            "Accept": "audio/mpeg",
-            "Content-Type": "application/json",
-            "xi-api-key": api_key
-        }
-        
-        data = {
-            "text": text,
-            "model_id": model_id,
-            "voice_settings": voice_settings
-        }
-        
-        try:
-            response = requests.post(url, json=data, headers=headers)
-            response.raise_for_status()
-            return response.content
-        except requests.exceptions.RequestException as e:
-            st.error(f"Error generating voice: {str(e)}")
-            if hasattr(e, 'response') and e.response is not None:
-                st.error(f"API response: {e.response.text}")
-            return None
+    # Get available voices for the selected account
+    voices_data = get_voices_for_account(current_api_key)
     
-    # Function to convert voice
-    def convert_voice(api_key, voice_id, audio_data, model_id):
-        url = f"https://api.elevenlabs.io/v1/speech-to-speech/{voice_id}"
-        
-        headers = {
-            "Accept": "audio/mpeg",
-            "xi-api-key": api_key
-        }
-        
-        # Handle different audio formats
-        content_type = "audio/mpeg"
-        if isinstance(audio_data, bytes):
-            # Try to detect the content type based on first few bytes
-            if audio_data.startswith(b'RIFF'):
-                content_type = "audio/wav"
-            elif audio_data.startswith(b'ID3') or audio_data.startswith(b'\xff\xfb'):
-                content_type = "audio/mpeg"
-            
-        files = {
-            "audio": ("input_audio", audio_data, content_type)
-        }
-        
-        data = {
-            "model_id": model_id,
-            "voice_settings": json.dumps({
-                "stability": stability,
-                "similarity_boost": similarity_boost,
-                "style": style_exaggeration,
-                "speaker_boost": True,
-                "speed": speed
-            })
-        }
-        
-        try:
-            response = requests.post(url, headers=headers, files=files, data=data)
-            response.raise_for_status()
-            return response.content
-        except requests.exceptions.RequestException as e:
-            st.error(f"Error converting voice: {str(e)}")
-            if hasattr(e, 'response') and e.response is not None:
-                st.error(f"API response: {e.response.text}")
-            return None
-
-    # Function to create download link with enhanced styling
-    def get_audio_download_link(audio_data, filename="generated_voice.mp3"):
-        b64 = base64.b64encode(audio_data).decode()
-        href = f'<a href="data:audio/mpeg;base64,{b64}" download="{filename}">DOWNLOAD GENERATED AUDIO</a>'
-        return href
-
-    # Check if API key is valid
-    if not api_key:
-        st.error("API key not found. Please set the ELEVENLABS_API_KEY in your environment variables or .env file.")
-        st.stop()
-
-    # Get available voices - using our filtered function instead of get_voices
-    voices_data = get_filtered_voices(api_key)
     if not voices_data.get("voices"):
-        st.error("Could not fetch voices. Please check if the API key is valid.")
+        st.error(f"Could not fetch voices for account '{selected_account}'. Please check if the API key is valid.")
         st.stop()
-
-    # Extract voice options for dropdown
+    
+    # Extract all voice options for dropdown
     voice_options = {voice["name"]: voice["voice_id"] for voice in voices_data["voices"]}
-
-    # App title
+    
+    # Main app title
     st.title("Tasty Voice Generator")
+    
+    # Show account information
+    show_account_info(selected_account, voices_data)
     
     # Create tabs
     tab1, tab2 = st.tabs(["Text to Voice", "Voice Changer"])
@@ -1105,7 +1211,7 @@ def main():
                     }
                     
                     audio_data = generate_voice(
-                        api_key, 
+                        current_api_key,  # Use the selected account's API key 
                         selected_voice_id, 
                         text_input, 
                         selected_tts_model_id,
@@ -1131,7 +1237,8 @@ def main():
                             "voice": selected_voice_name,
                             "model": selected_tts_model,
                             "audio_data": audio_data,
-                            "type": "tts"
+                            "type": "tts",
+                            "account": selected_account
                         })
 
         # Recent generations section
@@ -1147,7 +1254,7 @@ def main():
             
             if tts_generations:
                 for i, gen in enumerate(reversed(tts_generations[-5:])):  # Show last 5
-                    with st.expander(f"{gen['voice']} ({gen.get('model', 'Default Engine')}): {gen['text']}"):
+                    with st.expander(f"{gen['voice']} ({gen.get('model', 'Default Engine')}) - {gen['account']}"):
                         st.audio(gen["audio_data"], format="audio/mp3")
                         st.markdown(get_audio_download_link(gen["audio_data"], f"{gen['voice']}_{i}.mp3"), unsafe_allow_html=True)
             else:
@@ -1204,12 +1311,22 @@ def main():
                     st.subheader("Original Voice")
                     st.audio(audio_bytes, format=f"audio/{uploaded_file.type.split('/')[1]}")
                     
+                    # Prepare voice settings with all parameters
+                    voice_settings = {
+                        "stability": stability,
+                        "similarity_boost": similarity_boost,
+                        "style": style_exaggeration,
+                        "speaker_boost": True,  # Always set to True
+                        "speed": speed
+                    }
+                    
                     # Convert voice using the specific voice conversion model
                     converted_audio = convert_voice(
-                        api_key,
+                        current_api_key,  # Use the selected account's API key
                         target_voice_id,
                         audio_bytes,
-                        selected_vc_model_id
+                        selected_vc_model_id,
+                        voice_settings
                     )
                     
                     if converted_audio:
@@ -1232,7 +1349,8 @@ def main():
                             "voice": target_voice_name,
                             "model": selected_vc_model,
                             "audio_data": converted_audio,
-                            "type": "voice_conversion"
+                            "type": "voice_conversion",
+                            "account": selected_account
                         })
         
         # Recent conversions section
@@ -1248,7 +1366,7 @@ def main():
             
             if voice_conversions:
                 for i, gen in enumerate(reversed(voice_conversions[-5:])):  # Show last 5
-                    with st.expander(f"Transformation to {gen['voice']} ({gen.get('model', 'Default Engine')})"):
+                    with st.expander(f"Transformation to {gen['voice']} ({gen.get('model', 'Default Engine')}) - {gen['account']}"):
                         st.audio(gen["audio_data"], format="audio/mp3")
                         st.markdown(get_audio_download_link(gen["audio_data"], f"{gen['voice']}_{i}.mp3"), unsafe_allow_html=True)
             else:
